@@ -1,10 +1,10 @@
-% Copyright (C) 2008-2024 EDF R&D
+% Copyright (C) 2008-2017 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
 % It has been placed in the public domain.
 %
-% Author: Olivier Boudeville [olivier (dot) boudeville (at) edf (dot) fr]
+% Author: Olivier Boudeville (olivier.boudeville@edf.fr)
 
 
 % Unit tests for the interaction between the time manager and training actors.
@@ -33,7 +33,7 @@ run() ->
 
 	  % We leave it to the default specification (all_outputs):
 	  % result_specification =
-	  %  [ { targeted_patterns,   [ {".*",[data_and_rendering]} ] },
+	  %  [ { targeted_patterns,   [ {".*",[data_and_plot]} ] },
 	  %    { blacklisted_patterns, ["^Second" ] } ]
 
 	  %result_specification = [ {targeted_patterns, [ {".*",data_only} ] } ]
@@ -93,7 +93,7 @@ run() ->
 	DeploymentManagerPid ! { getRootTimeManager, [], self() },
 	RootTimeManagerPid = test_receive(),
 
-	?test_notice_fmt( "Starting simulation, "
+	?test_info_fmt( "Starting simulation, "
 		"for a stop at tick offset ~B.", [ StopTick ] ),
 
 	RootTimeManagerPid ! { start, [ StopTick, self() ] },

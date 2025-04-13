@@ -1,4 +1,0 @@
-DATAFLOW_URBAN_EXAMPLE_TOP = ..
-
-
-include $(DATAFLOW_URBAN_EXAMPLE_TOP)/GNUmakesettings.inc

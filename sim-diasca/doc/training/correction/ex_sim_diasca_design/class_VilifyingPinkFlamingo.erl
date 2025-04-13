@@ -1,16 +1,48 @@
-% Copyright (C) 2008-2024 EDF R&D
+% Copyright (C) 2008-2017 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
 % It has been placed in the public domain.
 %
-% Author: Olivier Boudeville [olivier (dot) boudeville (at) edf (dot) fr]
+% Author: Olivier Boudeville (olivier.boudeville@edf.fr)
 
 -module(class_VilifyingPinkFlamingo).
 
 
-% Determines what are the direct mother classes of this class (if any):
--define( superclasses, [ class_ViviparousBeing, class_Actor ] ).
+% Determines what are the mother classes of this class (if any):
+-define( wooper_superclasses, [ class_ViviparousBeing, class_Actor ] ).
+
+
+% Parameters taken by the constructor ('construct'):
+-define( wooper_construct_parameters, ActorSettings, Name, Height ).
+
+
+% If using the default do-nothing destructor:
+
+% Declaring all variations of WOOPER-defined standard life-cycle operations:
+% (template pasted, just two replacements performed to update arities)
+-define( wooper_construct_export, new/3, new_link/3,
+		 synchronous_new/3, synchronous_new_link/3,
+		 synchronous_timed_new/3, synchronous_timed_new_link/3,
+		 remote_new/4, remote_new_link/4, remote_synchronous_new/4,
+		 remote_synchronous_new_link/4, remote_synchronisable_new_link/4,
+		 remote_synchronous_timed_new/4, remote_synchronous_timed_new_link/4,
+		 construct/4, delete/1 ).
+
+
+
+% Member method declarations.
+-define( wooper_method_export, actSpontaneous/1,
+		 beNotifiedOfRival/2, beVilified/3,
+		 filterPlankton/1, getFeatherColor/1 ).
+
+
+% Static method declarations.
+-define( wooper_static_method_export, get_mean_children_count/0 ).
+
+
+% Allows to define WOOPER base variables and methods for that class:
+-include("wooper.hrl").
 
 
 % Must be included before class_TraceEmitter header:
@@ -18,82 +50,67 @@
 
 
 % Allows to use macros for trace sending:
--include("sim_diasca_for_actors.hrl").
+-include("sim_diasca_for_models.hrl").
 
 
-% Shorthands:
+% Expressed in centimetres:
+-type height() :: float().
 
--type ustring() :: text_utils:ustring().
-
--type heigth() :: class_PinkFlamingo:heigth().
--type color() :: class_PinkFlamingo:color().
--type flamingo_pid() :: class_PinkFlamingo:flamingo_pid().
--type filtering_location() :: class_PinkFlamingo:filtering_location().
+-type color() :: atom().
 
 
 
-% The class-specific attributes of such a flamingo are:
--define( class_attributes, [
-	{ heigth, heigth(), "Height of this flamingo" },
-	{ feather_color, color(), "From grey to pink" },
-	{ rival_flamingo, maybe( flamingo_pid() ), "PID of any rival" },
-	{ filter_location, filtering_location(), "the current filtering spot" } ] ).
-
-
--export_type([ heigth/0, color/0, flamingo_pid/0, filtering_location/0 ]).
-
-
-
-
-% @doc Constructs a VilifyingPinkFlamingo:
+% Constructs a new VilifyingPinkFlamingo:
 %
 % - ActorSettings corresponds to the engine settings for this actor
 %
 % - Name is a string corresponding to the name of the flamingo
 %
-% - Heigth is its initial (floating-point) heigth, in centimetres
+% - Height is its initial (floating-point) height, in centimetres
 %
 -spec construct( wooper:state(), class_Actor:actor_settings(),
-				 class_Actor:name(), heigth() ) -> wooper:state().
-construct( State, ActorSettings, Name, Heigth )
-  when is_list( Name ) andalso is_float( Heigth ) ->
+				 class_Actor:name(), height() ) -> wooper:state().
+construct( State, ?wooper_construct_parameters ) when is_list( Name )
+										  andalso is_float( Height ) ->
 
 	% First the direct mother classes:
 	ViviparousBeingState = class_ViviparousBeing:construct( State ),
 
 	ActorState = class_Actor:construct( ViviparousBeingState,
-										?trace_categorize(Name) ),
+										?trace_categorize( Name ) ),
 
-	?send_notice_fmt( ActorState, "Creating a vilifying pink flamingo "
-		"named '~ts' (AAI: ~B) whose heigth is ~p centimeters.",
-		[ ?trace_categorize(Name), ActorSettings, Heigth ] ),
+	?send_info_fmt( ActorState, "Creating a vilifying pink flamingo "
+				   "named '~s' (AAI: ~B) whose height is ~p centimeters.",
+				   [ ?trace_categorize( Name ), ActorSettings, Height ] ),
 
 	% Then the class-specific attributes:
 	% (name is no more class-specific, as defined in class_Actor)
 	%
-	% The rival_flamingo attribute holds the PID of the rival of that flamingo
+	% The rival_flamingo attribute holds the Pid of the rival of that flamingo
 	% (if any).
-	%
 	setAttributes( ActorState, [
-		{ heigth, Heigth },
+		{ height, Height },
 		{ feather_color, pink },
 		{ rival_flamingo, undefined },
 		{ filter_location, camargue } ] ).
 
 
 
-% @doc Overridden destructor:
+% Overridden destructor:
 -spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
-	?notice_fmt( "Deletion of vilifying pink flamingo named '~ts'.",
-				 [ ?getAttr(name) ] ),
+	?info_fmt( "Deletion of vilifying pink flamingo named '~s'.",
+			   [ ?getAttr(name) ] ),
 
 	State.
 
 
 
-% @doc The spontaneous behaviour of a vilifying pink flamingo.
+% The spontaneous behaviour of a vilifying pink flamingo.
+%
+% (oneway)
+%
 -spec actSpontaneous( wooper:state() ) -> oneway_return().
 actSpontaneous( State ) ->
 
@@ -116,7 +133,7 @@ actSpontaneous( State ) ->
 
 	end,
 
-	wooper:return_state( NewState ).
+	?wooper_return_state_only( NewState ).
 
 
 
@@ -124,39 +141,41 @@ actSpontaneous( State ) ->
 % Actor oneway section.
 
 
-% @doc Notifies this flamingo that it has just been vilified.
+% Notifies this flamingo that it has just been vilified.
 %
 % If a flamingo is vilified by another one which was not its rival, then the
 % vilifier becomes its new rival.
 %
 % Called by a rival flamingo.
 %
--spec beVilified( wooper:state(), ustring(), sending_actor_pid() ) ->
-						actor_oneway_return().
-beVilified( State, VilificationMessage, SendingActorPid ) ->
+% (actor oneway)
+%
+-spec beVilified( wooper:state(), string(), pid() ) ->
+						class_Actor:actor_oneway_return().
+beVilified( State, VilificationMessage, SenderPid ) ->
 
 	% Sender has to specify who it is, as it is not a request:
 	NewState = case ?getAttr(rival_flamingo) of
 
-		SendingActorPid ->
+		SenderPid ->
 
-			?info_fmt( "I am flamingo ~ts, and I am vilified by "
-				"my rival ~w, whose message is: '~ts'.",
-				[ ?getAttr(name), SendingActorPid, VilificationMessage ] ),
+			?trace_fmt( "I am flamingo ~s, and I am vilified by "
+						"my rival ~w, whose message is: '~s'.",
+						[ ?getAttr(name), SenderPid, VilificationMessage ] ),
 
 			State;
 
 		_Other->
 
-			?info_fmt( "I am flamingo ~ts, and I am vilified by ~w, "
-				"whose message is: '~ts'. It was not my rival but now it is.",
-				[ ?getAttr(name), SendingActorPid, VilificationMessage ] ),
+			?trace_fmt( "I am flamingo ~s, and I am vilified by ~w, "
+				"whose message is: '~s'. It was not my rival but now it is.",
+				[ ?getAttr(name), SenderPid, VilificationMessage ] ),
 
-			setAttribute( State, rival_flamingo, SendingActorPid )
+			setAttribute( State, rival_flamingo, SenderPid )
 
 	end,
 
-	wooper:return_state( NewState ).
+	?wooper_return_state_only( NewState ).
 
 
 
@@ -164,10 +183,13 @@ beVilified( State, VilificationMessage, SendingActorPid ) ->
 % Request section.
 
 
-% @doc Returns the feather color of the flamingo.
--spec getFeatherColor( wooper:state() ) -> const_request_return( color() ).
+% Returns the feather color of the flamingo.
+%
+% (const request)
+%
+-spec getFeatherColor( wooper:state() ) -> request_return( color() ).
 getFeatherColor( State ) ->
-	wooper:const_return_result( ?getAttr(feather_color) ).
+	?wooper_return_state_result( State, ?getAttr(feather_color) ).
 
 
 
@@ -175,14 +197,17 @@ getFeatherColor( State ) ->
 % Oneway section.
 
 
-% @doc Makes this flamingo discover a new rival to vilify.
+% Makes this flamingo discover a new rival to vilify.
 %
 % The flamingo forgets any previously identified rival.
 %
--spec beNotifiedOfRival( wooper:state(), sending_actor_pid() ) ->
-							   actor_oneway_return().
+% (actor oneway)
+%
+-spec beNotifiedOfRival( wooper:state(), pid() ) ->
+							   class_Actor:actor_oneway_return().
 beNotifiedOfRival( State, RivalPid ) ->
-	actor:return_state(	setAttribute( State, rival_flamingo, RivalPid ) ).
+	?wooper_return_state_only(
+		setAttribute( State, rival_flamingo, RivalPid ) ).
 
 
 
@@ -190,10 +215,13 @@ beNotifiedOfRival( State, RivalPid ) ->
 % Static section.
 
 
-% @doc Let's say an average means something here.
--spec get_mean_children_count() -> static_return( basic_utils:count() ).
+% Let's say an average means something here:
+%
+% (static method, as it does not depend on a state)
+%
+-spec get_mean_children_count() -> basic_utils:count().
 get_mean_children_count() ->
-	wooper:return_static( 1.7 ).
+	1.7.
 
 
 
@@ -201,7 +229,7 @@ get_mean_children_count() ->
 % Helper function section.
 
 
-% @doc Action to be done when this flamingo decides to mumble.
+% Action to be done when this flamingo decides to mumble.
 %
 % Returns an updated state.
 %
@@ -209,32 +237,31 @@ get_mean_children_count() ->
 %
 -spec mumble( wooper:state() ) -> wooper:state().
 mumble( State ) ->
-	?info( "Mumble, mumble. Life is sweet without a rival." ),
+	?trace( "Mumble, mumble. Life is sweet without a rival." ),
 	State.
 
 
 
-% @doc Action to be done when this flamingo decides to vilify another flamingo.
+% Action to be done when this flamingo decides to vilify another flamingo.
 %
 % Returns an updated state.
 %
 % (helper function)
 %
--spec vilify( flamingo_pid(), wooper:state() ) -> wooper:state().
+-spec vilify( pid(), wooper:state() ) -> wooper:state().
 vilify( RivalPid, State ) ->
 
-	?info_fmt( "Vilifying now ~w.", [ RivalPid ] ),
+	?trace_fmt( "Vilifying now ~w.", [RivalPid] ),
 
-	Message = text_utils:format( "Me, ~ts, hereby testify that you are the "
-		"smallest flamingo that ever existed. Sincerily yours.",
-		[ ?getAttr(name) ] ),
+	Message = io_lib:format(
+		"Me, ~s, testify that you are the smallest flamingo I have ever seen.",
+		[?getAttr(name)] ) ),
 
-	class_Actor:send_actor_message( RivalPid,
-							{ beVilified, [ Message ] }, State ).
-
+	class_Actor:send_actor_message( RivalPid, {beVilified,[Message]}, State ).
 
 
-% @doc Requests the flamingo to filter plankton in specified location.
+
+% Requests the flamingo to filter plankton in specified location.
 %
 % Note: this is a modified version of the previous oneway.
 %
@@ -247,7 +274,7 @@ filterPlankton( State ) ->
 
 	Location = ?getAttr(filter_location),
 
-	HeigthGain = case Location of
+	HeightGain = case Location of
 
 		camargue ->
 			2.5;
@@ -257,10 +284,10 @@ filterPlankton( State ) ->
 
 	end,
 
-	NewHeigth = ?getAttr(heigth) + HeigthGain,
+	NewHeight = ?getAttr(height) + HeightGain,
 
-	?info_fmt( "Filtering plankton in ~w, my new heigth is ~f, "
-		"my rival ~w will not believe its eyes.",
-		[ Location, NewHeigth, ?getAttr(rival_flamingo) ] ),
+	?trace_fmt( "Filtering plankton in ~w, my new height is ~f, "
+				"my rival ~w will not believe its eyes.",
+				[ Location, NewHeight, ?getAttr(rival_flamingo) ] ),
 
-	setAttribute( State, heigth, NewHeigth ).
+	setAttribute( State, height, NewHeight ).

@@ -1,7 +1,0 @@
-
-
-
-INC += -I$(SODA_TEST_TOP)/include
-
-
-MOCK_SIMULATORS_TOP = $(SODA_TEST_TOP)/..

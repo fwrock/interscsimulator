@@ -1,36 +1,140 @@
-[![Erlang CI](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/actions/workflows/erlang-ci.yml/badge.svg)](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/actions/workflows/erlang-ci.yml)
-# Sim-Diasca
+# InterSCSimulator
 
-![](/sim-diasca/doc/common-elements/edf-related/sim-diasca.png)
+This reposiory is a fork from [Sim-Diasca Repository](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca).
 
+This is Sim-Diasca, a parallel and distributed discrete-time simulation engine for complex systems.
 
-## Purpose of this repository
+The name stands for 'Simulation of Discrete Systems of All Scales'.
 
-This is the official repository of the Sim-Diasca simulation engine, which is developed and released by [EDF R&D](https://www.edf.fr/en/the-edf-group/inventing-the-future-of-energy/r-d-global-expertise).
+This is the 2.2.11-rc4 version of Sim-Diasca.
 
-The purpose of this public repository is to complement the [official page](https://www.edf.fr/en/the-edf-group/inventing-the-future-of-energy/r-d-global-expertise/our-offers/simulation-softwares/sim-diasca) and to share with the community the code and the [documentation](http://olivier-boudeville-edf.github.io/Sim-Diasca/) of Sim-Diasca.
+Sim-Diasca is released under the LGPL licence (GNU Lesser General Public License, version 3).
 
+Please refer to the GPL-licence.txt and LGPL-licence.txt text files, in the sim-diasca/doc/common-elements/licence directory.
 
-## Sim-Diasca in a nutshell
+See also: http://www.gnu.org/licenses/lgpl-3.0.html
 
-Sim-Diasca (*Simulation of Discrete Systems of All Scales*) is a **discrete-time simulation engine** aiming for maximum concurrency, relying on a mode of operation that is both parallel and distributed.
-
-The engine focuses notably on scalability, in order to handle simulation cases that may be very large (potentially involving millions of interacting instances of models), while still preserving essential simulation properties, like causality, total reproducibility and some form of ergodicity.
-
-The simulation engine is implemented in the [Erlang](http://erlang.org) programming language and its execution platform of choice is GNU/Linux.
-
-Sim-Diasca has been released since 2010 by EDF R&D under the LGPL licence.
-
-<!--
-For more information, please refer to the *Sim-Diasca Technical Manual*.
-
-Until the various elements are available online, please [contact us](https://www.edf.fr/en/the-edf-group/world-s-largest-power-company/activities/research-and-development/scientific-communities/simulation-softwares?logiciel=10832) for an archived copy of the last stable version and its related documentation. -->
+Official Sim-Diasca website: http://sim-diasca.com.
 
 
-## Sim-Diasca documentation
+A good start to understand how the engine should be used is to have a look in the mock-simulators/soda-test/src directory.
 
-Please refer to the full [Sim-Diasca official documentation](http://olivier-boudeville-edf.github.io/Sim-Diasca/) for further information.
+If you want to make some testing, once you ensured that you are relying on a GNU/Linux distribution offering a recent stable version of Erlang (typically 18.1 or newer, with the crypto and wx modules available - please refer to the associated 'Sim-Diasca Technical Manual' for more information) and that the Sim-Diasca codebase is compiled (ensure documented prerequisites are installed, then issue 'make all' from the root directory), just run, from the previous directory (mock-simulators/soda-test/src):
 
-One may also have a look at the [Sim-Diasca wiki](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/wiki).
+  make soda_deterministic_integration_run CMD_LINE_OPT="--batch"
 
-This branch corresponds to the current stable version (2.4.7) of Sim-Diasca.
+as a simple yet complete example.
+
+
+Please refer to the 'Sim-Diasca Technical Manual' or to the 'Sim-Diasca Developer Guide' for further information.
+
+We hope that you will enjoy using Sim-Diasca!
+
+In this repository we add a smart city model ([Main Repository](https://github.com/ezambomsantana/smart_city_model)). InterSCSimulator is based on Sim-Diasca, a general purpose simulator implemented in Erlang.
+
+## Running InterSCSimulator with Docker ##
+Download and extract Sim-Diasca. Place this repository under Sim-Diasca's `mock-simulators` directory:
+```
+cd sim-diasca/mock-simulators
+git clone https://github.com/ezambomsantana/smart_city_model.git
+```
+
+Under InterSCSimulator's directory, create a configuration file called `interscsimulator.conf` with the path to `config.xml` for the desired simulation scenario:
+```
+cd smart_city_model
+echo "../simple_scenario/config.xml" > interscsimulator.conf
+```
+
+Go back to Sim-Diasca root directory and build the image:
+```
+cd ../..
+docker build -f mock-simulators/smart_city_model/Dockerfile -t interscitysimulator .  
+```
+
+Create a Docker network:
+```
+docker network create interscity
+```
+
+Run the simulator container mouting a volume from the desired scenario directory:
+```
+docker run -it --network interscity --hostname interscity.local -v $(pwd)/mock-simulators/smart_city_model/simple_scenario/:/interscsimulator/mock-simulators/smart_city_model/simple_scenario interscitysimulator
+```
+
+## Running InterSCSimulator on Linux ##
+### Prerequisites ### 
+#### Sim-Diasca and Erlang ####
+Download and extract Sim-Diasca. If you don't have Erlang installed, you can use the script at `sim-diasca/common/conf/install-erlang.sh`.
+After Erlang is installed, compile Sim-Diasca:
+```
+cd sim-diasca
+make all
+```
+3. Make sure that the hostname is a FQDN, e.g. `localhost.local`
+
+#### RabbitMQ ####
+Run the `install-deps.sh` script. Dependencies will be placed in the `lib/` directory.
+
+### Installation ###
+Clone this respository under Sim-Diasca's `mock-simulators` directory:
+```
+cd mock-simulators
+git clone https://github.com/ezambomsantana/smart_city_model.git
+``` 
+
+Compile InterSCSimulator:
+```
+cd smart_city_model/src
+make all
+```
+
+---
+
+### Run InterSCSimulator ###
+Under InterSCSimulator's directory, create a configuration file called `interscsimulator.conf` with the path to `config.xml` for the desired simulation scenario:
+```
+cd sim-diasca/mock-simulators/smart_city_model
+echo "../simple_scenario/config.xml" > interscsimulator.conf
+```
+
+Run the simulator
+```
+cd src
+make smart_city_run CMD_LINE_OPT="--batch"
+```
+
+
+#### Visualizing the simulation with OTFVis ####
+
+Visualizing simulations
+===
+
+InterSCity input and output files are compatible with [MATSim](https://www.matsim.org/) formats, so users can take advantage of the extensive tooling already developed by MATSim contributors. The following tutorial shows how to use [OTFVis](https://www.matsim.org/extension/otfvis) for visualization.
+
+### Get MATsim and OTFvis ###
+1. Download the standalone zip for the latest stable release from https://www.matsim.org/downloads/. Download the zip for OTFVis from https://github.com/matsim-org/matsim/releases/tag/matsim-0.9.0.
+
+2. Extract:
+```
+unzip matsim-0.9.0.zip 
+unzip otfvis-0.9.0.zip 
+```
+
+### Create .mvi file for your scenario ###
+1. After running the simulation, create a copy of `events.xml` from your scenario and compress it:
+```
+cd mock-simulators/smart_city_model/scenario
+cp events.xml scenario.events.xml
+gzip scenario.events.xml
+``` 
+
+2. Use OTFvis to generate a .mvi file from your events and network file:
+```
+java -cp matsim-0.9.0/matsim-0.9.0.jar:otfvis-0.9.0/otfvis-0.9.0.jar org.matsim.contrib.otfvis.RunOTFVis --convert <path_to_scenario.events.xml.gz> <path_to_network.xml> scenario.mvi <time_resolution_in_seconds>
+```
+
+### Visualize the simulation ###
+Finally, open the .mvi file with OTFvis:
+```
+java -cp matsim-0.9.0/matsim-0.9.0.jar:otfvis-0.9.0/otfvis-0.9.0.jar org.matsim.contrib.otfvis.RunOTFVis scenario.mvi
+```

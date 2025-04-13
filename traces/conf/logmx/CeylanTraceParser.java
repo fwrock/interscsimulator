@@ -12,35 +12,19 @@ import com.lightysoft.logmx.business.ParsedEntry;
 import com.lightysoft.logmx.mgr.LogFileParser;
 
 
-/*
- * Debugging hints:
- *
- * One may add in any of these methods calls like 'System.out.println("Hi!");'
- * and when LogMX (and this parser) will be run, these elements will be
- * displayed on the console
- *
- * One may also modify recordPreviousEntryIfExists() in order to add any prefix
- * to all traces, like in:
- *      entry.setMessage( "HELLO " + entryMsgBuffer.toString() );
- *
- */
-
 
 /**
- * The Ceylan-Traces LogMX Parser is able to parse a log file with multi-line
- * support and Relative Date support.
+ * Ceylan LogMX Parser able to parse a log file with multi-line support and
+ * Relative Date support.
  *
- * Here is an example of log entry suitable for this parser:
+ * Here is an example of log file suitable for this parser:
  * """
  * <0.31.0>|Object-17|Actor.Theme.Object.SomeObject|3168318240218
  *   |08/04/2008 04:41:24|ceylan_test@myhost.org
  *   |Execution.Topic.SpecificEvent|2|No answer from Object XYZ
  * """
  *
- * This parser is a part of the Ceylan-Traces project, refer to
- * http://traces.esperide.org for more information.
- *
- * @see traces/conf/logmx/TraceSample.txt
+ * @see erlang/traces/conf/logmx/TraceSample.txt
  *
  */
 public class CeylanTraceParser extends LogFileParser
@@ -50,37 +34,18 @@ public class CeylanTraceParser extends LogFileParser
 	private ParsedEntry entry = null;
 
 
-	/** Entry date format
-	 * (static declaration removed, to avoid a potential deadlock)
-	 *
-	 */
-	private final SimpleDateFormat DatePattern =
-		new SimpleDateFormat( "dd/MM/yyyy HH:mm:ss" ) ;
+	/** Entry date format */
+	private final static SimpleDateFormat DatePattern = new SimpleDateFormat(
+	  "dd/MM/yyyy HH:mm:ss" ) ;
 
 
-	/** Pattern to match the beginning of a trace, like '<0.31.0>|':
-	 *
-	 * (otherwise the following options could be considered, as second
-	 * parameter: Pattern.{UNICODE_CASE, UNICODE_CHARACTER_CLASS, MULTILINE,
-	 * DOTALL})
-	 *
-	 * We already use DOTALL, otherwise, as soon a message includes a Unicode
-	 * character corresponding to '...' (displayed at least with Emacs as \205),
-	 * the line is not considered matching, and this is suffixed to the previous
-	 * one.
-	 *
-	 */
+	/** Pattern to match the beginning of a trace, like '<0.31.0>|':  */
 	private final static Pattern TraceBeginPattern =
-		/* Pattern.UNICODE_CASE | Pattern.UNICODE_CHARACTER_CLASS
-		 *  | Pattern.MULTILINE | Pattern.DOTALL);
-		 *
-		 */
-		Pattern.compile("^<\\d++\\.\\d++\\.\\d++>\\|.*$", Pattern.DOTALL);
+		Pattern.compile("^<\\d++\\.\\d++\\.\\d++>\\|.*$");
 
 
 	/** Buffer for Entry message (improves performance for multi-lines
-	 * entries)
-	 */
+	 * entries)  */
 	private StringBuilder entryMsgBuffer = null;
 
 
@@ -90,13 +55,13 @@ public class CeylanTraceParser extends LogFileParser
 	/** Key of extra user-defined field about execution time */
 	private static final String EmitterLocationKey = "Emitter Location" ;
 
-	/** Key of extra user-defined field about trace categorization */
+	/** Key of extra user-defined field about execution time */
 	private static final String CategoryKey = "Categorization" ;
 
 	private static final String[] ArrayOfKeys =
-		{ ExecutionTimeKey, EmitterLocationKey, CategoryKey } ;
+	  { ExecutionTimeKey, EmitterLocationKey, CategoryKey } ;
 
-	/** User-defined field names (here, only one) */
+	/** User-defined fields names (here, only one) */
 	private static final List<String> KeysOfUserDefinedFields =
 		Arrays.asList( ArrayOfKeys ) ;
 
@@ -127,7 +92,7 @@ public class CeylanTraceParser extends LogFileParser
 
 
 	/**
-	 * Processes the new line of text read from file.
+	 * Process the new line of text read from file.
 	 *
 	 * @see com.lightysoft.logmx.mgr.LogFileParser#parseLine(java.lang.String)
 	 *
@@ -138,28 +103,22 @@ public class CeylanTraceParser extends LogFileParser
 		// If end of file, records last entry if necessary, and exits:
 		if ( line == null )
 		{
-			//System.out.println("\n(no line)");
 			recordPreviousEntryIfExists() ;
 			return ;
 		}
 
-		//System.out.println("\nParsing line '" + line + "'." );
-
-		Matcher matcher = TraceBeginPattern.matcher( line ) ;
+		Matcher matcher = TraceBeginPattern.matcher(line) ;
 
 		if ( matcher.matches() )
 		{
 
 			// Records previous found entry if exists, then create a new one:
-			prepareNewEntry() ;
+			prepareNewEntry();
 
 			// We are at the beginning of a trace.
 
 			/* '|' is the field separator: */
 			String[] fields = line.split( "\\|" ) ;
-
-			//System.out.println("Matching based on " + fields.length
-			//   + " fields." );
 
 			/*
 			 * field #0: technical identifier (PID)  -> in entry 'Thread'
@@ -194,28 +153,18 @@ public class CeylanTraceParser extends LogFileParser
 			entry.setDate(    fields[3].trim() );
 			entry.setLevel(   fields[7].trim() ) ;
 
-			// From field #8 to everything that may remain:
+			// From field #8 to all that may remain:
 			String remainingFields = "" ;
 
 			Integer remainingFieldsCount = fields.length - 8 ;
 
-			/* Puts back the '|' (note that, due to line.split/1, any trailing
-			 * pipe will be lost)
-			 *
-			 */
+			// Puts back the '|':
 			for ( Integer i = 0; i < remainingFieldsCount; i++ )
 			{
-				// No trimming wanted here:
-				remainingFields += fields[i+8] ;
+				remainingFields += fields[i+8].trim() ;
 				if ( i != remainingFieldsCount-1 )
 					remainingFields += "|" ;
 			}
-
-			// Otherwise lost because of split:
-			if ( line.endsWith( "|" ) )
-				remainingFields += "|" ;
-			else
-				line.trim() ;
 
 			/*
 			 * Inserts spaces to allow line-breaking, and end-of-line to
@@ -226,26 +175,17 @@ public class CeylanTraceParser extends LogFileParser
 
 			// Relative timestamp is also the execution time here:
 			entry.getUserDefinedFields().put( ExecutionTimeKey,
-				fields[4].trim() ) ;
+			  fields[4].trim() ) ;
 
 			entry.getUserDefinedFields().put( EmitterLocationKey,
-				fields[5].trim() ) ;
+			  fields[5].trim() ) ;
 
-			entry.getUserDefinedFields().put( CategoryKey, fields[6].trim() ) ;
+			entry.getUserDefinedFields().put( CategoryKey,
+			  fields[6].trim() ) ;
 
 		}
 		else if (entry != null)
 		{
-
-			/* Such lines are perfectly normal, they correspond to any message
-			 * comprising more than one line:
-			 *
-
-			System.out.println(
-			  "[Ceylan-Traces parser] Warning: non-matching line '"
-			  + line + "'.");
-
-			 */
 
 			// Appending this line to previous entry's text:
 			entryMsgBuffer.append('\n').append(line);
@@ -263,39 +203,9 @@ public class CeylanTraceParser extends LogFileParser
 	 *
 	 */
 	@Override
-	public List<String> getUserDefinedFields()
-	{
+		public List<String> getUserDefinedFields() {
 		return KeysOfUserDefinedFields ;
 	}
-
-
-	/* Called by LogMX to get a textual description of the given user-defined
-	 * field (see getUserDefinedFields()).
-	 *
-	 * The default implementation for this class returns null, which means that
-	 * the given field doesn't have any description.
-	 *
-	 * The returned description, if any, will be used to display a tooltip in
-	 * the GUI when the mouse is hovering the field column's header (on the log
-	 * entries table).
-	 *
-	 * Defined mostly to avoid: "Cannot find description for 'Emitter
-	 * Location':java.lang.NoSuchMethodException:
-	 * ceylan.parser.CeylanTraceParser.getUserDefinedFieldDesription(
-	 * java.lang.String)".
-	 *
-	 * Note: apparently a typo in the API ('Desription' instead of
-	 * 'Description').
-	 *
-	 */
-	// LogMx 7.9 or more recent only: @Override
-	public String getUserDefinedFieldDesription( String pField )
-	{
-
-		return "Ceylan-Traces " + pField ;
-
-	}
-
 
 
 	/**
@@ -308,15 +218,15 @@ public class CeylanTraceParser extends LogFileParser
 	public Date getRelativeEntryDate( ParsedEntry pEntry ) throws Exception
 	{
 
-		final String executionTimeString =
-			pEntry.getUserDefinedFields().get( ExecutionTimeKey ).toString() ;
+		final String executionTimeString = pEntry.getUserDefinedFields().get(
+		  ExecutionTimeKey ).toString() ;
 
 		return new Date( Integer.parseInt( executionTimeString ) ) ;
 	}
 
 
 	/**
-	 * Returns the Date object for the given entry.
+	 * Returns the Date object for the given entry
 	 *
 	 * @see com.lightysoft.logmx.mgr.LogFileParser,
 	 * getAbsoluteEntryDate(com.lightysoft.logmx.business.ParsedEntry)
