@@ -1,0 +1,3 @@
+[submodule "mock-simulators/smart_city_model"]
+	path = mock-simulators/smart_city_model
+	url = https://github.com/fwrock/interscsimulator-smart-city-model
