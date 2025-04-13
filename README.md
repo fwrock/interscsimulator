@@ -28,7 +28,7 @@ git clone git@github.com:fwrock/interscsimulator-smart-city-model.git
 
 3. Rename `interscsimulator-smart-city-model` to `smart_city_model`:
 ```bash
-rm ./smart_city_model
+rm -r ./smart_city_model
 mv interscsimulator-smart-city-model/ ./smart_city_model
 ```
 
