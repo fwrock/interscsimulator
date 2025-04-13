@@ -4,20 +4,16 @@ SIM_DIASCA_TOP = .
 .PHONY: help help-intro help-sim-diasca                               \
 		all register-version-in-header register-sim-diasca            \
 		info-local info-tools info-network info-versions info-compile \
-		clean clean-local clean-host-candidate-files
+		info-conditionals                                             \
+		clean clean-local clean-host-candidate-files stats
 
 
 
-MODULES_DIRS = src doc
+MODULES_DIRS = src test doc
 
 
 # To override the 'all' default target with a parallel version:
 BASE_MAKEFILE = true
-
-
-# No trace supervisor or graphical output wanted when running all tests from a
-# root directory (batch mode vs interactive one):
-CMD_LINE_OPT = "--batch"
 
 
 # Default target:
@@ -39,7 +35,7 @@ help-sim-diasca:
 	@echo "  - 'X_exec':        runs application X_app.beam"
 	@echo "  - 'info':          displays make-related key variables"
 	@echo "  - 'help':          displays this help"
-	@cd $(COMMON_TOP) && $(MAKE) -s help-batch
+	@cd $(MYRIAD_TOP) && $(MAKE) -s help-batch
 
 
 
@@ -78,15 +74,23 @@ info-compile:
 	@echo "ENABLE_NATIVE_COMPILATION = $(ENABLE_NATIVE_COMPILATION)"
 	@echo "ENABLE_TRACES             = $(ENABLE_TRACES)"
 	@echo "ENABLE_DEBUG              = $(ENABLE_DEBUG)"
+	@echo "BEAM_DIRS                 = $(BEAM_DIRS)"
+
+
+info-conditionals:
+	@echo "SIM_DIASCA_DEBUG_FLAGS = $(SIM_DIASCA_DEBUG_FLAGS)"
+	@echo "SIM_DIASCA_CHECK_FLAGS = $(SIM_DIASCA_CHECK_FLAGS)"
 
 
 clean: clean-local
 
 
+# Was:
+#  @find . \( -name '*.dia~' -o -name 'svn-commit.tmp' \) \
+#	-exec /bin/rm -f '{}' ';'
+#
 clean-local:
-	@find . \( -name '*.dia~' -o -name 'svn-commit.tmp' \) \
-	-exec /bin/rm -f '{}' ';'
-
+	@find . -name '*.dia~' -exec /bin/rm -f '{}' ';'
 
 
 
@@ -100,6 +104,10 @@ clean-local:
 #
 clean-host-candidate-files:
 	@find src -name "$(SIM_DIASCA_HOST_FILE)" -exec /bin/rm -f '{}' ';'
+
+
+stats:
+	@$(MAKE_CODE_STATS) $(SIM_DIASCA_TOP)
 
 
 include $(SIM_DIASCA_TOP)/GNUmakesettings.inc

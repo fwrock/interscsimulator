@@ -1,4 +1,4 @@
-% Copyright (C) 2008-2017 EDF R&D
+% Copyright (C) 2008-2021 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
@@ -13,7 +13,7 @@
 -module(class_PinkFlamingo_test).
 
 
--include("test_facilities.hrl" ).
+-include_lib("myriad/include/test_facilities.hrl" ).
 
 
 
@@ -26,26 +26,26 @@ run() ->
 
 	test_facilities:start( ?MODULE ),
 
-	test_facilities:display( "Debug mode: ~s.",
+	test_facilities:display( "Debug mode: ~ts.",
 		[ class_PinkFlamingo:is_wooper_debug() ] ),
 
 
 	% General tests.
 
 	test_facilities:display(
-		"Statically, class name is ~s, superclasses are ~p.",
-		[ class_PinkFlamingo:get_class_name(),
+		"Statically, class name is ~ts, superclasses are ~p.",
+		[ class_PinkFlamingo:get_classname(),
 		  class_PinkFlamingo:get_superclasses() ] ),
 
 	% Using synchronous_new_link would be better and safer:
 	MyFlamingo = class_PinkFlamingo:new( "Syd", 120.0 ),
 
-	MyFlamingo ! {get_class_name,[],self()},
+	MyFlamingo ! {get_classname,[],self()},
 	receive
 
 		{wooper_result,class_PinkFlamingo} ->
 			test_facilities:display(
-				"After constructor, get_class_name returned "
+				"After constructor, get_classname returned "
 				"'class_PinkFlamingo' as expected." );
 
 		{wooper_result,UnexpectedClass} ->

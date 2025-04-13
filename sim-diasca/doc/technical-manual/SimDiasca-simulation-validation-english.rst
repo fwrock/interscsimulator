@@ -15,7 +15,7 @@ This simulator may or may not be accurate, and this must be established first.
 
 Indeed, drawing bad conclusions from false assumptions or improper reasoning is surprisingly easy:
 
-:raw-html:`<img src="xkcd-dimensional_analysis.png"></img>`
+:raw-html:`<center><img src="xkcd-dimensional_analysis.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-dimensional_analysis.png}`
 
 Being able to trust this new simulator is of course of the utmost importance.

@@ -386,7 +386,7 @@ Recommended Use of Erlang in a Sim-Diasca Context
 Streamlined Erlang Installation
 ...............................
 
-This is automatically enforced by the use of the ``common/conf/install-erlang.sh`` script.
+This is automatically enforced by the use of the ``myriad/conf/install-erlang.sh`` script.
 
 Another useful step is to enable proper syntax highlighting, both for Erlang and for WOOPER.
 
@@ -397,9 +397,9 @@ Another useful step is to enable proper syntax highlighting, both for Erlang and
 
  - extract the Sim-Diasca archive: ``tar xvjf SimDiasca-training-install.tar.bz2``
 
- - have a short review of the Sim-Diasca Erlang installation script, which is: ``common/conf/install-erlang.sh``, and run it with the ``--help`` option
+ - have a short review of the Sim-Diasca Erlang installation script, which is: ``myriad/conf/install-erlang.sh``, and run it with the ``--help`` option
 
- - run it to automatically install the Erlang environment: ``common/conf/install-erlang.sh --cutting-edge --doc-install --no-download``, from a directory where the ``otp_*`` files are available (no connection available from the training room)
+ - run it to automatically install the Erlang environment: ``myriad/conf/install-erlang.sh --cutting-edge --doc-install --no-download``, from a directory where the ``otp_*`` files are available (no connection available from the training room)
 
  - update your PATH variable (preferably permanently, ex: in ``~/.bashrc``, one can add: ``export PATH=~/Software/Erlang/Erlang-current-install/bin:$PATH``)
 
@@ -409,7 +409,7 @@ Another useful step is to enable proper syntax highlighting, both for Erlang and
 
  - optional:
 
-  - update the nedit configuration file with the supplied one: ``mkdir -p ~/.nedit ; cd ~/.nedit; rm nedit.rc; ln -s $PREFIX/common/conf/nedit.rc``
+  - update the nedit configuration file with the supplied one: ``mkdir -p ~/.nedit ; cd ~/.nedit; rm nedit.rc; ln -s $PREFIX/myriad/conf/nedit.rc``
   - display a WOOPER source file to check the syntax highlighting: ``nedit wooper/examples/class_Cat.erl``
   - then, congratulations, you should have a fully working Erlang environment!
 
@@ -424,7 +424,7 @@ Interlude: A Short Discussion About The Build System
 
 (necessary to understand the Erlang compiler settings)
 
- - the same build system is used for the ``common`` sub-layer, the WOOPER layer, the Sim-Diasca layer; possibly it could/should be used by any simulator based on Sim-Diasca
+ - the same build system is used for the ``myriad`` sub-layer, the WOOPER layer, the Sim-Diasca layer; possibly it could/should be used by any simulator based on Sim-Diasca
 
  - the build not based on Emakefiles (which are too limited)
 
@@ -452,11 +452,11 @@ Interlude: A Short Discussion About The Build System
 
 .. admonition:: Exercise ex_make
 
- - go into the ``common/src`` directory
+ - go into the ``myriad/src`` directory
  - issue: ``make clean all test``
  - interpret outputs
  - inspect all files in directory
- - see the ``common/GNUmakerules.inc`` to have a look at the ``clean all test`` targets
+ - see the ``myriad/GNUmakerules.inc`` to have a look at the ``clean all test`` targets
  - execute, in parallel with the reading of the corresponding rules:
 
    - ``make clean``
@@ -464,7 +464,7 @@ Interlude: A Short Discussion About The Build System
    - ``make test``
 
  - optional: add an alias to your shell configuration file: ``alias m=make``
- - see also: ``common/GNUmakevars.inc`` and at least one ``GNUmakefile`` (they will be commented and explained to you); for example: any test for a module named ``X`` (thus in ``X.erl``), is to be stored in ``X_test.erl``, and can be automatically compiled and run with proper settings thanks to: ``make X_run``
+ - see also: ``myriad/GNUmakevars.inc`` and at least one ``GNUmakefile`` (they will be commented and explained to you); for example: any test for a module named ``X`` (thus in ``X.erl``), is to be stored in ``X_test.erl``, and can be automatically compiled and run with proper settings thanks to: ``make X_run``
 
 
 :raw-latex:`\pagebreak`
@@ -478,7 +478,7 @@ Streamlined Configuration of the Erlang Compiler
 
 The Erlang compiler (``erlc``) allows to transform Erlang source files (``*.erl`` files) into precompiled byte-code files for the Erlang virtual machine (``*.beam`` files).
 
-Its proper configuration is automatically enforced by the use of the WOOPER-based build system (which includes the ``common`` first sub-layer):
+Its proper configuration is automatically enforced by the use of the WOOPER-based build system (which includes the ``myriad`` first sub-layer):
 
  - compiler options are defined incrementally in the per-layer ``GNUmakevars.inc`` file
  - options are referenced in rules defined incrementally in the per-layer ``GNUmakerules.inc`` file
@@ -488,7 +488,7 @@ Its proper configuration is automatically enforced by the use of the WOOPER-base
 
 .. admonition:: Exercise ex_compiler
 
- - go into the ``common`` directory
+ - go into the ``myriad`` directory
 
  - edit the ``GNUmakerules.inc`` file
 
@@ -496,7 +496,7 @@ Its proper configuration is automatically enforced by the use of the WOOPER-base
 
  - in its body, remove the ``@`` before ``$(ERLANG_COMPILER)`` so that the run command-line will be displayed in the terminal whenever executed
 
- - go into the ``common/src`` directory
+ - go into the ``myriad/src`` directory
 
  - run: ``make clean hashtable.beam``
 
@@ -518,9 +518,9 @@ Streamlined Configuration of the Erlang Interpreter
 
 The Erlang interpreter (``erl``) allows to run on the current platform any precompiled byte-code file for the Erlang virtual machine (``*.beam`` file, produced by the Erlang compiler just mentioned).
 
-The proper configuration of the Erlang interpreter is automatically enforced as well, thanks to the use of the WOOPER-based build system (which includes the ``common`` first sub-layer).
+The proper configuration of the Erlang interpreter is automatically enforced as well, thanks to the use of the WOOPER-based build system (which includes the ``myriad`` first sub-layer).
 
-To configure appropriately the Erlang virtual machine, a script is used by the all the generic rules having to run the interpreter: ``common/src/launch-erl.sh``.
+To configure appropriately the Erlang virtual machine, a script is used by the all the generic rules having to run the interpreter: ``myriad/src/launch-erl.sh``.
 
 The following exercise is also useful to understand later how:
 
@@ -530,9 +530,9 @@ The following exercise is also useful to understand later how:
 
 .. admonition:: Exercise ex_interpreter
 
- - go into the ``common`` directory
+ - go into the ``myriad`` directory
  - ``make clean all`` to rebuild everything from scratch
- - go into the ``common/src`` directory
+ - go into the ``myriad/src`` directory
  - have a look at the services offered by ``hashtable.erl``
  - see how ``hashtable_test.erl`` allows to perform some tests on the hashtable module
  - run: ``make hashtable_run``
@@ -542,7 +542,7 @@ The following exercise is also useful to understand later how:
  - restore the previous expected value
  - examine:
 
-  - the ``common/src/launch-erl.sh`` script
+  - the ``myriad/src/launch-erl.sh`` script
   - the VM settings, as run on the command line
 
  - all interpreter flags will be described and explained (they are listed in the correction of the exercise)
@@ -848,7 +848,7 @@ A deeper look to selected parts of following files, in the ``src`` directory, co
 Examples
 --------
 
-Check that the ``common`` layer is up-to-date, then go in the ``wooper`` directory and rebuild everything (``make clean all``).
+Check that the ``myriad`` layer is up-to-date, then go in the ``wooper`` directory and rebuild everything (``make clean all``).
 
 Then run the test suite: still from the ``wooper`` directory, run: ``make test``.
 
@@ -1501,7 +1501,7 @@ Source Control System
 
 The layout of the sources [#]_ is the following::
 
-  |-- common
+  |-- myriad
   |   |-- conf
   |   |-- contrib
   |   |   `-- smart-exceptions

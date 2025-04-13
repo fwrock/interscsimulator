@@ -1,4 +1,4 @@
-% Copyright (C) 2008-2017 EDF R&D
+% Copyright (C) 2008-2021 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
@@ -7,37 +7,15 @@
 % Author: Olivier Boudeville (olivier.boudeville@edf.fr)
 
 
-% Class modeling a deterministic thristy customer.
 -module(class_FaultyDeterministicThirstyCustomer).
 
 
-% Determines what are the mother classes of this class (if any):
--define( wooper_superclasses, [ class_Actor ] ).
+-define( class_description,
+		 "Class modeling a deterministic thirsty customer." ).
 
 
-% parameters taken by the constructor ('construct').
--define( wooper_construct_parameters, ActorSettings, CustomerName, KnownMachine,
-		 RepletionDuration, InitialBudget ).
-
-
-% Declaring all variations of WOOPER-defined standard life-cycle operations:
-% (template pasted, just two replacements performed to update arities)
--define( wooper_construct_export, new/5, new_link/5,
-		 synchronous_new/5, synchronous_new_link/5,
-		 synchronous_timed_new/5, synchronous_timed_new_link/5,
-		 remote_new/6, remote_new_link/6, remote_synchronous_new/6,
-		 remote_synchronous_new_link/6, remote_synchronisable_new_link/6,
-		 remote_synchronous_timed_new/6, remote_synchronous_timed_new_link/6,
-		 construct/6, delete/1 ).
-
-
-% Member method declarations.
--define( wooper_method_export, actSpontaneous/1, setCanCost/3, getCan/2,
-		 onNoCanAvailable/2, onNotEnoughMoney/2 ).
-
-
-% Allows to define WOOPER base variables and methods for that class:
--include("wooper.hrl").
+% Determines what are the direct mother classes of this class (if any):
+-define( superclasses, [ class_Actor ] ).
 
 
 % Must be included before class_TraceEmitter header:
@@ -45,20 +23,22 @@
 
 
 % Allows to use macros for trace sending:
--include("sim_diasca_for_models.hrl").
+-include("sim_diasca_for_actors.hrl").
+
 
 
 % Constructs a new faulty deterministic thirsty customer.
-%
 -spec construct( wooper:state(), class_Actor:actor_settings(),
-			class_Actor:name(), pid(), duration(), amount() ) -> wooper:state().
-construct( State, ?wooper_construct_parameters ) ->
+				 class_Actor:name(), class_SodaVendingMachine:machine_pid(),
+				 duration(), amount() ) -> wooper:state().
+construct( State, ActorSettings, CustomerName, KnownMachine,
+		   RepletionDuration, InitialBudget ) ->
 
 	ActorState = class_Actor:construct( State, ActorSettings,
 										?trace_categorize( CustomerName ) ),
 
-	?send_info_fmt( ActorState,
-		"Creating a new deterministic thirsty customer named '~s', "
+	?send_notice_fmt( ActorState,
+		"Creating a new deterministic thirsty customer named '~ts', "
 		"having initially ~B euro(s), knowing the following vending machine: ~w"
 		" and being thirsty ~B minutes after having drunk.",
 		[ CustomerName, InitialBudget, KnownMachine, RepletionDuration ] ),
@@ -72,16 +52,15 @@ construct( State, ?wooper_construct_parameters ) ->
 		{ transaction_in_progress, false } ] ).
 
 
+
 % Overridden destructor.
-%
 -spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	% Class-specific actions:
 
-	?info_fmt( "Deleting thirsty customer named '~s', "
-			   "who had finally ~B euros left in pocket.",
-			   [ ?getAttr(name), ?getAttr(current_money) ] ),
+	?notice_fmt( "Deleting thirsty customer named '~ts', who had finally ~B "
+		"euros left in pocket.", [ ?getAttr(name), ?getAttr(current_money) ] ),
 
 	% Then allow chaining:
 	State.
@@ -97,10 +76,7 @@ delete( State ) ->
 
 
 % The core of the customer behaviour.
-%
-% (oneway)
-%
--spec actSpontaneous( wooper:state() ) -> oneway_return().
+-spec actSpontaneous( wooper:state() ) -> const_oneway_return().
 actSpontaneous( State ) ->
 
 	NewState = case ?getAttr(can_cost) of
@@ -109,7 +85,7 @@ actSpontaneous( State ) ->
 			request_cost( State );
 
 		requested ->
-			?info( "Price quote from the machine being requested." ),
+			?notice( "Price quote from the machine being requested." ),
 			State;
 
 		_ ->
@@ -117,16 +93,13 @@ actSpontaneous( State ) ->
 
 	end,
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
 % Called by the known machine, in return to a getCanCost call.
-%
-%  (actor oneway)
-%
--spec setCanCost( wooper:state(), amount(), pid() ) ->
-						class_Actor:actor_oneway_return().
+-spec setCanCost( wooper:state(), amount(), sending_actor_pid() ) ->
+						actor_oneway_return().
 setCanCost( State, CanCost, MachinePid ) ->
 
 	% Sanity checks:
@@ -138,50 +111,41 @@ setCanCost( State, CanCost, MachinePid ) ->
 	%
 	ThirstyState = set_next_thirsty_tick( State , MachinePid ),
 
-	?wooper_return_state_only(
-					   setAttribute( ThirstyState, can_cost, CanCost ) ).
+	actor:return_state( setAttribute( ThirstyState, can_cost, CanCost ) ).
 
 
 
 % Called by the machine in return to a orderSoda call, when a can was available.
-%
-% (actor oneway)
-%
--spec getCan( wooper:state(), pid() ) -> class_Actor:actor_oneway_return().
+-spec getCan( wooper:state(), sending_actor_pid() ) -> actor_oneway_return().
 getCan( State, _MachinePid ) ->
 
-	?info( "Received a can, drank it, no more thirsty for a while." ),
+	?notice( "Received a can, drank it, no more thirsty for a while." ),
 
 	MoneyState = subtractFromAttribute( State, current_money,
 										?getAttr(can_cost) ),
 
 	FinishState = setAttribute( MoneyState, transaction_in_progress, false ),
 
-	?wooper_return_state_only( set_next_thirsty_tick( FinishState ) ).
+	actor:return_state( set_next_thirsty_tick( FinishState ) ).
+
 
 
 % Called by the machine in return to a orderSoda call, when no can is available.
-%
-% (actor oneway)
-%
--spec onNoCanAvailable( wooper:state(), pid() ) ->
-							class_Actor:actor_oneway_return().
+-spec onNoCanAvailable( wooper:state(), sending_actor_pid() ) ->
+							actor_oneway_return().
 onNoCanAvailable( State, _MachinePid ) ->
 
-	?info( "Could not have soda, the machine had no can left." ),
+	?notice( "Could not have soda, the machine had no can left." ),
 
-	?wooper_return_state_only( 
-	   setAttribute( State, transaction_in_progress, false ) ).
+	actor:return_state( setAttribute( State, transaction_in_progress, false ) ).
 
 
 
 % Called by the machine in return to a orderSoda call, when not enough money was
 % inserted for a can.
 %
-% (actor oneway)
-%
--spec onNotEnoughMoney( wooper:state(), pid() ) ->
-							class_Actor:actor_oneway_return().
+-spec onNotEnoughMoney( wooper:state(), sending_actor_pid() ) ->
+							  actor_oneway_return().
 onNotEnoughMoney( State, MachinePid ) ->
 
 	?error_fmt( "Still having ~B euros but unable to buy a can from ~w "
@@ -205,7 +169,7 @@ onNotEnoughMoney( State, MachinePid ) ->
 -spec request_cost( wooper:state() ) -> wooper:state().
 request_cost( State ) ->
 
-	?info( "Investigating how much costs a soda, requesting the machine." ),
+	?notice( "Investigating how much costs a soda, requesting the machine." ),
 
 	class_Actor:send_actor_message( ?getAttr(known_machine),
 		getCostOfCan, setAttribute( State, can_cost, requested ) ).
@@ -233,24 +197,24 @@ manage_thirst( State ) ->
 					% Here we need to drink, let's try to do so by ordering a
 					% soda: (we specify our budget, but the machine has the
 					% final word)
+					%
 					Budget = ?getAttr(current_money),
 					CanCost = ?getAttr(can_cost),
 
 					case CanCost of
 
 						Cost when Cost > Budget ->
-							?info_fmt( "Thirsty, but not having enough money: "
-									   "a can costs ~B euros, "
-									   "whereas having only ~B euro(s).",
-									   [ CanCost, Budget ] ),
+							?notice_fmt( "Thirsty, but not having enough money: "
+								"a can costs ~B euros, "
+								"whereas having only ~B euro(s).",
+								[ CanCost, Budget ] ),
 							State;
 
 						_ ->
 
 							% We should be able to afford the can:
-							?info_fmt( "Thirsty and having enough money "
-									   "(~B euros), trying to buy a can.",
-									   [ Budget ] ),
+							?notice_fmt( "Thirsty and having enough money "
+								"(~B euros), trying to buy a can.", [ Budget ] ),
 
 							class_Actor:send_actor_message(
 								?getAttr(known_machine),
@@ -263,7 +227,7 @@ manage_thirst( State ) ->
 			end;
 
 		false ->
-			?info( "Feeling fine, not thirsty currently." ),
+			?notice( "Feeling fine, not thirsty currently." ),
 			State
 
 	end.
@@ -300,6 +264,7 @@ is_thirsty( State ) ->
 -spec set_next_thirsty_tick( wooper:state() ) -> wooper:state().
 set_next_thirsty_tick( State ) ->
 
+	% Relying on tick offsets is generally more convenient:
 	NextThirstyTick = class_Actor:get_current_tick( State )
 		+ ?getAttr(repletion_duration),
 

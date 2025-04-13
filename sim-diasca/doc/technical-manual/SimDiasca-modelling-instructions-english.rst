@@ -59,7 +59,7 @@ Expressivity
 ............
 
 
-:raw-html:`<img src="xkcd-candy_button_paper.png"></img>`
+:raw-html:`<center><img src="xkcd-candy_button_paper.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-candy_button_paper.png}`
 
 
@@ -102,7 +102,7 @@ Modelling allows to bridge the gap between our knowledge of the system and its i
 
 One can certainly use flowcharts:
 
-:raw-html:`<img src="xkcd-flow_charts.png"></img>`
+:raw-html:`<center><img src="xkcd-flow_charts.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-flow_charts.png}`
 
 But one may preferably rely on a few UML diagrams, including:
@@ -123,7 +123,7 @@ So a translation step to the simulation language must generally take place, and 
 
 The best practice we recommend is to adopt a unified language to specify all models first, and to practise pair-work (one domain expert sitting on the side of a computer scientist/model developer) to ensure that the translation is correct. Indeed, mistakes can easily be made:
 
-:raw-html:`<img src="xkcd-circumference_formula.png"></img>`
+:raw-html:`<center><img src="xkcd-circumference_formula.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-circumference_formula.png}`
 
 

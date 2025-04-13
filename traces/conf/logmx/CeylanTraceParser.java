@@ -24,7 +24,10 @@ import com.lightysoft.logmx.mgr.LogFileParser;
  *   |Execution.Topic.SpecificEvent|2|No answer from Object XYZ
  * """
  *
- * @see erlang/traces/conf/logmx/TraceSample.txt
+ * This parser is a part of the Ceylan-Traces project, refer to
+ * http://traces.esperide.com for more information.
+ *
+ * @see traces/conf/logmx/TraceSample.txt
  *
  */
 public class CeylanTraceParser extends LogFileParser
@@ -34,8 +37,11 @@ public class CeylanTraceParser extends LogFileParser
 	private ParsedEntry entry = null;
 
 
-	/** Entry date format */
-	private final static SimpleDateFormat DatePattern = new SimpleDateFormat(
+	/** Entry date format
+	 * (static declaration removed, to avoid a potential deadlock)
+	 *
+	 */
+	private final SimpleDateFormat DatePattern = new SimpleDateFormat(
 	  "dd/MM/yyyy HH:mm:ss" ) ;
 
 
@@ -153,18 +159,28 @@ public class CeylanTraceParser extends LogFileParser
 			entry.setDate(    fields[3].trim() );
 			entry.setLevel(   fields[7].trim() ) ;
 
-			// From field #8 to all that may remain:
+			// From field #8 to everything that may remain:
 			String remainingFields = "" ;
 
 			Integer remainingFieldsCount = fields.length - 8 ;
 
-			// Puts back the '|':
+			/* Puts back the '|' (note that, due to line.split/1, any trailing
+			 * pipe will be lost)
+			 *
+			 */
 			for ( Integer i = 0; i < remainingFieldsCount; i++ )
 			{
-				remainingFields += fields[i+8].trim() ;
+				// No trimming wanted here:
+				remainingFields += fields[i+8] ;
 				if ( i != remainingFieldsCount-1 )
 					remainingFields += "|" ;
 			}
+
+			// Otherwise lost because of split:
+			if ( line.endsWith( "|" ) )
+				remainingFields += "|" ;
+			else
+				line.trim() ;
 
 			/*
 			 * Inserts spaces to allow line-breaking, and end-of-line to
@@ -206,6 +222,32 @@ public class CeylanTraceParser extends LogFileParser
 		public List<String> getUserDefinedFields() {
 		return KeysOfUserDefinedFields ;
 	}
+
+
+	/* Called by LogMX to get a textual description of the given user-defined
+	 * field (see getUserDefinedFields()).
+	 *
+	 * The default implementation for this class returns null, which means that
+	 * the given field doesn't have any description.
+	 *
+	 * The returned description, if any, will be used to display a tooltip in
+	 * the GUI when the mouse is hovering the field column's header (on the log
+	 * entries table).
+	 *
+	 * Defined mostly to avoid: "Cannot find description for 'Emitter
+	 * Location':java.lang.NoSuchMethodException:
+	 * ceylan.parser.CeylanTraceParser.getUserDefinedFieldDesription(
+	 * java.lang.String)".
+	 *
+	 */
+	// LogMx 7.9 or more recent only: @Override
+	public String getUserDefinedFieldDesription( String pField )
+	{
+
+		return "Ceylan-Traces " + pField ;
+
+	}
+
 
 
 	/**

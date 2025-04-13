@@ -9,7 +9,7 @@ Sim-Diasca Helper Tools
 
 These tools are not strictly necessary to the mode of operation of the engine, however they provide some features that are very useful in some contexts.
 
-:raw-html:`<img src="xkcd-the_general_problem.png"></img>`
+:raw-html:`<center><img src="xkcd-the_general_problem.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-the_general_problem.png}`
 
 

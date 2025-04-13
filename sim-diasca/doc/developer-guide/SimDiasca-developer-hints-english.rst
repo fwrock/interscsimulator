@@ -14,7 +14,7 @@ Writing models involves a lot of algorithmic design decisions, and many of them 
 
 There is a large choice of both data-structures as such (lists, trees, associative tables, heap, etc.) and of implementations (``gb_tree``, hashtables, etc.), offering various trade-offs.
 
-In some occasions, we felt the need to develop our own versions of some of them (see ``common/src/data-management`` for the most common ones), even if in some cases built-in solutions could provide better trade-offs (thinking to ETS tables- albeit offering a different sharing semantics - and to the process dictionary - which is not the purest and most flexible feature we wanted to rely on).
+In some occasions, we felt the need to develop our own versions of some of them (see ``myriad/src/data-management`` for the most common ones), even if in some cases built-in solutions could provide better trade-offs (thinking to ETS tables- albeit offering a different sharing semantics - and to the process dictionary - which is not the purest and most flexible feature we wanted to rely on).
 
 We nevertheless use most of the time the built-in data-structures, like ``gb_sets`` or ``queues``. When multiple implementations providing the same API are available (ex: for ordered lists), we usually define a (sometimes module-specific) ``list_impl`` symbol, allowing to switch easily between similar data-structures.
 
@@ -31,7 +31,7 @@ For example::
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-tree.png}`
 
 
-Similarly, for **algorithms** operating on these data-structures we tend not to reinvent the wheel (ex: ``class_Mesh`` uses the ``digraph`` module), unless we need specific versions of them (ex: operating on an implicit graph, with user-specified anonymous functions, see ``common/src/utils/graph_utils.erl``).
+Similarly, for **algorithms** operating on these data-structures we tend not to reinvent the wheel (ex: ``class_Mesh`` uses the ``digraph`` module), unless we need specific versions of them (ex: operating on an implicit graph, with user-specified anonymous functions, see ``myriad/src/utils/graph_utils.erl``).
 
 :raw-html:`<img src="xkcd-.png"></img>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-ineffective_sorts.png}`

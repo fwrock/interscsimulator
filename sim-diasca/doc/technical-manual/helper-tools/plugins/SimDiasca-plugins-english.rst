@@ -71,7 +71,7 @@ Some callbacks are a little more complex:
 Implementation Notes
 --------------------
 
-All services of the lower layers are available to plugins. As a result, they can rely upon the facilities of the Common layer, WOOPER classes may be used as plugins, and the distributed trace system can be used by the plugins as well.
+All services of the lower layers are available to plugins. As a result, they can rely upon the facilities of the Myriad layer, WOOPER classes may be used as plugins, and the distributed trace system can be used by the plugins as well.
 
 The plugin service is mostly located in ``sim-diasca/src/core/src/plugins``.
 

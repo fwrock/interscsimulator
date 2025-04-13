@@ -1,9 +1,9 @@
-common/doc
-common/GNUmakefile
-common/GNUmakerules.inc
-common/GNUmakesettings.inc
-common/GNUmakevars.inc
-common/src
+myriad/doc
+myriad/GNUmakefile
+myriad/GNUmakerules.inc
+myriad/GNUmakesettings.inc
+myriad/GNUmakevars.inc
+myriad/src
 traces/doc
 traces/GNUmakefile
 traces/GNUmakerules.inc
@@ -15,6 +15,5 @@ GNUmakesettings.inc
 GNUmakevars.inc
 mock-simulators
 sim-diasca
-sustainable-cities
 wooper
 .git

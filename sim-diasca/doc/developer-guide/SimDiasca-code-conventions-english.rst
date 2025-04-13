@@ -24,6 +24,8 @@ We believe also that these conventions have been fairly well enforced in our own
 :raw-latex:`\includegraphics[scale=4]{xkcd-donald_knuth.png}`
 
 
+.. Finally duplicated with Myriad, so that we can still use XKCD here.
+.. For all basic conventions that are transverse to at least all the Erlang developments that we do, we rely on the `main conventions <https://olivier-boudeville.github.io/Ceylan-Myriad/#main-conventions>`_ that the Ceylan-Myriad project defined.
 
 
 Text Conventions
@@ -48,7 +50,7 @@ Source files should be formatted for a 80-character width: no character should b
 
 Tabulations should be preferred to series of spaces, and the text should be formatted according to 4-character tabulations.
 
-All redundant whitespaces should be removed, preferably automatically (see the Emacs ``whitespace-cleanup`` command). This is why, on Emacs, with our settings, pressing the F8 key removes for example the yellow areas in the current buffer, by replacing any series of four spaces by a corresponding tabulation.
+All redundant whitespaces should be removed, preferably automatically (see the Emacs ``whitespace-cleanup`` command). This is why, on Emacs, with our settings, pressing the F8 key removes for example the yellow areas in the current buffer by replacing any series of four spaces by a corresponding tabulation.
 
 For that, with emacs, in addition to our ``init.el``, we rely on ``acme-search.el``, ``flyspell-guess.el`` and ``whitespace.el`` (all in the ``~/.emacs.d`` directory - check that no other initialisation file collide, like a stray ``~/.emacs`` file), and it leads to a display like:
 
@@ -67,6 +69,8 @@ Spell-checking is recommended; ensure you typed everything properly:
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-the_important_field.png}`
 
 
+As not all typos may be detected at compilation-time (ex: wrong spelling for a module), we recommend the use of additional static checkers, as discussed `here <https://myriad.esperide.org/#type-checking-myriad>`_.
+
 
 
 
@@ -83,22 +87,22 @@ Top-to-bottom, we have:
  =============== ==================================================
  Layer Name      Role
  =============== ==================================================
- Sim-Diasca      The simulation engine
- Traces          The distributed trace system
- WOOPER          The object-oriented layer
- Common          The base library offering general-purpose services
+ Sim-Diasca      This simulation engine
+ Ceylan-Traces   The distributed trace system
+ Ceylan-WOOPER   The object-oriented layer
+ Ceylan-Myriad   The base library offering general-purpose services
  Erlang          The base language and environment
  =============== ==================================================
 
-Thus, there is not upward dependency, for example WOOPER depends on Common and Erlang but not on Traces or Sim-Diasca.
+Thus, there is not upward dependency, for example WOOPER depends on Myriad and Erlang but not on Traces or on Sim-Diasca.
 
 The other way round, bottom-up one can see:
 
-- ``Erlang``, which provides the way of defining and running concurrently a large number of processes
-- ``Common``, which gathers all common services that are needed, in terms of data-structures, lower-level constructs, most common processings, etc.
-- ``WOOPER``, which transforms Erlang processes into instances of classes with multiple inheritance, still running concurrently
-- ``Traces``, which allows each distributed instance to send appropriate traces
-- ``Sim-Diasca``, which transforms a distributed object-oriented application into a simulation
+- `Erlang <https://www.erlang.org/>`_, which provides the way of defining and running concurrently a large number of processes
+- `Myriad <https://olivier-boudeville.github.io/Ceylan-Myriad/>`_, which gathers all common services that are needed, in terms of data-structures, lower-level constructs, most frequent processings, etc.
+- `WOOPER <https://olivier-boudeville.github.io/Ceylan-Myriad/>`_, which transforms Erlang processes into instances of classes with multiple inheritance, still running concurrently
+- `Traces <https://olivier-boudeville.github.io/Ceylan-Myriad/>`_, which allows each distributed instance to send appropriate traces
+- `Sim-Diasca <https://olivier-boudeville-edf.github.io/Sim-Diasca/>`_, which transforms a distributed object-oriented application into a simulation
 
 
 On top of that stack, which provides the simulation engine, there are at least:
@@ -146,9 +150,9 @@ The most obvious conventions are:
 
 - **spacing homogeneity** across Sim-Diasca source files should be enforced; for example three blank lines should exist between two function definitions, one between the clauses of any given function (possibly two in case of longer clauses), arguments should be separated by spaces (ex: ``f( X ) -> ...``, not ``f(X) -> ...``), especially if they are a bit complex (``f( A={U,V}, B, _C ) -> ...``, not ``f(A={U,V},B,_C) -> ...``)
 
-- see the `Using Type Specifications With Sim-Diasca`_ section for **type-related conventions**; at least all exported functions shall have a ``-spec`` declaration; if an actual type is referenced more than once (notably in a given module), a specific user-defined type shall be defined; types shall be defined in "semantic" terms rather than on technical ones (ex: ``-type temperature() :: ...`` than ``float()``); developers may refer to, or enrich, ``common/src/utils/unit_utils.erl`` for that
+- see the `Using Type Specifications With Sim-Diasca`_ section for **type-related conventions**; at least all exported functions shall have a ``-spec`` declaration; if an actual type is referenced more than once (notably in a given module), a specific user-defined type shall be defined; types shall be defined in "semantic" terms rather than on technical ones (ex: ``-type temperature() :: ...`` than ``float()``); developers may refer to, or enrich, ``myriad/src/utils/unit_utils.erl`` for that
 
-- the **latest stable version of Erlang** should be used, preferably built thanks to our ``common/conf/install-erlang.sh`` script
+- the **latest stable version of Erlang** should be used, preferably built thanks to our ``myriad/conf/install-erlang.sh`` script
 
 - the official *Programming Rules and Conventions* should be enforced, as defined `here <http://www.erlang.se/doc/programming_rules.shtml>`_
 
@@ -188,7 +192,7 @@ The most obvious conventions are:
 
 For the sake of clarity, we try to avoid too compact code, and code too poorly understandable for everyone but its original creator. Thus we want to enforce a minimum ratio of blank lines and comments.
 
-For example, as of May 2017, we have for the Sim-Diasca stack (i.e. from ``common`` to ``sim-diasca``):
+For example, as of May 2017, we have for the Sim-Diasca stack (i.e. from ``myriad`` to ``sim-diasca``):
 
 - 326 source files (``*.erl``), 86 header files (``*.hrl``)
 - a grand total of 178980 lines:
@@ -227,14 +231,14 @@ Another piece of advice we maybe should apply more frequently:
 :raw-latex:`\pagebreak`
 
 
-Common Conventions
+Myriad Conventions
 ==================
 
 The general goal is to collect recurring generic lower-level patterns and solutions in that layer.
 
-When an helper mechanism is already available in ``Common``, it should be used instead of being defined multiple times in the software stack.
+When an helper mechanism is already available in ``Myriad``, it should be used instead of being defined multiple times in the software stack.
 
-Reciprocally, when a well-defined generic sequence of instructions is used more than once, it should be integrated (commented and tested) in that ``Common`` layer.
+Reciprocally, when a well-defined generic sequence of instructions is used more than once, it should be integrated (commented and tested) in that ``Myriad`` layer.
 
 Main services are:
 
@@ -243,9 +247,9 @@ Main services are:
 - support of some math-related operations, mostly linear (in ``maths``)
 - various helpers, for system-related operations, text management, network operations, executable support, unit management, etc. (in ``utils``)
 
-For further information, please refer to the **Technical Manual of the Common Layer** [#]_.
+For further information, please refer to the **Technical Manual of the Myriad Layer** [#]_.
 
-.. [#] It can be generated by running ``make full-doc`` from ``common/doc``.
+.. [#] It can be generated by running ``make full-doc`` from ``myriad/doc``.
 
 
 

@@ -108,13 +108,13 @@ For example, if ``N=6``, hosts may be ``[a,b,c,d,e,f]``, and the k-map could the
 
 This example corresponds to, graphically (see ``class_Resilience_test.erl``):
 
-:raw-html:`<img src="Resilience_5-map_for_6_nodes.png"></img>`
+:raw-html:`<center><img src="Resilience_5-map_for_6_nodes.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{Resilience_5-map_for_6_nodes.png}`
 
 
 Of course this resilience feature is typically to be used with a far larger number of nodes; even with a slight increase, like in:
 
-:raw-html:`<img src="Resilience_10-map_for_20_nodes.png"></img>`
+:raw-html:`<center><img src="Resilience_10-map_for_20_nodes.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.3]{Resilience_10-map_for_20_nodes.png}`
 
 we see that any central point in the process would become very quickly a massive bottleneck.
@@ -143,11 +143,11 @@ The states then collected require more than a mere serialisation, as some elemen
 
 This is notably the case for the PIDs that are stored in the state of an instance (i.e. in the value of an attribute, just by itself or possibly as a part of an arbitrarily complex data-structure).
 
-Either such a PID belongs to a lower layer (``Common``, ``WOOPER`` or ``Traces``), or it is related directly to Sim-Diasca, corresponding typically to a simulation agent of a distributed service (ex: a local time manager, data exchanger or instance tracker), to a model instance (an actor) or to a result producer (a probe).
+Either such a PID belongs to a lower layer (``Myriad``, ``WOOPER`` or ``Traces``), or it is related directly to Sim-Diasca, corresponding typically to a simulation agent of a distributed service (ex: a local time manager, data exchanger or instance tracker), to a model instance (an actor) or to a result producer (a probe).
 
 As PIDs are technical, contextual, non-reproducible identifiers (somewhat akin to pointers), they must be translated into a more abstract form prior to serialisation, to allow for a later proper deserialisation; otherwise these "pointers" would not mean anything for the deserialising mechanism:
 
-:raw-html:`<img src="xkcd-pointers.png"></img>`
+:raw-html:`<center><img src="xkcd-pointers.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-pointers.png}`
 
 

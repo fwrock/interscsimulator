@@ -1,4 +1,4 @@
-% Copyright (C) 2008-2017 EDF R&D
+% Copyright (C) 2008-2021 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
@@ -7,39 +7,14 @@
 % Author: Olivier Boudeville (olivier.boudeville@edf.fr)
 
 
-% Class modeling a soda vending machine.
-%
 -module(class_FaultySodaVendingMachine).
 
 
-% Determines what are the mother classes of this class (if any):
--define( wooper_superclasses, [ class_Actor ] ).
+-define( class_description, "Class modeling a soda vending machine." ).
 
 
-% parameters taken by the constructor ('construct').
--define( wooper_construct_parameters, ActorSettings, MachineName,
-		 InitialCanCount, CanCost ).
-
-
-% Declaring all variations of WOOPER-defined standard life-cycle operations:
-% (template pasted, just two replacements performed to update arities)
--define( wooper_construct_export, new/4, new_link/4,
-		 synchronous_new/4, synchronous_new_link/4,
-		 synchronous_timed_new/4, synchronous_timed_new_link/4,
-		 remote_new/5, remote_new_link/5, remote_synchronous_new/5,
-		 remote_synchronous_new_link/5, remote_synchronisable_new_link/5,
-		 remote_synchronous_timed_new/5, remote_synchronous_timed_new_link/5,
-		 construct/5, delete/1 ).
-
-
-
-% Method declarations.
--define( wooper_method_export, actSpontaneous/1, getCanCost/2, orderSoda/3,
-		 getProbe/1 ).
-
-
-% Allows to define WOOPER base variables and methods for that class:
--include("wooper.hrl").
+% Determines what are the direct mother classes of this class (if any):
+-define( superclasses, [ class_Actor ] ).
 
 
 % Must be included before class_TraceEmitter header:
@@ -47,43 +22,40 @@
 
 
 % Allows to use macros for trace sending:
--include("sim_diasca_for_models.hrl").
-
+-include("sim_diasca_for_actors.hrl").
 
 
 % Constructs a faulty soda-vending machine.
-%
-construct( State, ?wooper_construct_parameters ) when InitialCanCount >= 0 ->
+construct( State, ActorSettings, MachineName, InitialCanCount, CanCost )
+  when InitialCanCount >= 0 ->
 
 	ActorState = class_Actor:construct( State, ActorSettings,
-										?trace_categorize( MachineName ) ),
+										?trace_categorize(MachineName) ),
 
-	?send_info_fmt( ActorState,
-					"Creating a new soda vending machine named '~s', "
+	?send_notice_fmt( ActorState,
+					"Creating a new soda vending machine named '~ts', "
 					"having initially ~B can(s), costing each ~B euro(s).",
 					[ MachineName, InitialCanCount, CanCost ] ),
 
-	StockProbe = class_Probe:new(
-		io_lib:format( "~s Soda Stock Probe", [ MachineName ] ),
-		{ io_lib:format( "~s can stock", [ MachineName ] ) },
+	StockProbeRef = class_Probe:new(
+		text_utils:format( "~ts Soda Stock Probe", [ MachineName ] ),
+		{ text_utils:format( "~ts can stock", [ MachineName ] ) },
 		"Monitoring the soda consumption",
 		"Simulation tick",
 		"Number of cans still available in the machine" ),
 
-	setAttributes( ActorState, [
-		{ can_count, InitialCanCount },
-		{ can_cost, CanCost },
-		{ probe, StockProbe } ] ).
+	setAttributes( ActorState, [ { can_count, InitialCanCount },
+								 { can_cost, CanCost },
+								 { probe_ref, StockProbeRef } ] ).
 
 
 
 % Overridden destructor.
-%
 -spec delete( wooper:state() ) -> wooper:state().
 delete( State ) ->
 
 	% Class-specific actions:
-	?info_fmt( "Deleting soda vending machine named '~s', "
+	?notice_fmt( "Deleting soda vending machine named '~ts', "
 			   "whose final can stock was ~B.",
 			   [ ?getAttr(name), ?getAttr(can_count) ] ),
 
@@ -100,10 +72,7 @@ delete( State ) ->
 
 
 % The core of the soda vending machine behaviour.
-%
-% (oneway)
-%
--spec actSpontaneous( wooper:state() ) -> wooper:state().
+-spec actSpontaneous( wooper:state() ) -> const_oneway_return().
 actSpontaneous( State ) ->
 
 	% Here a machine as no spontaneous behaviour, so it does not do anything
@@ -111,32 +80,28 @@ actSpontaneous( State ) ->
 
 	CurrentTick = class_Actor:get_current_tick( State ),
 
-	?getAttr(probe) ! { setData, [ CurrentTick, { ?getAttr(can_count) } ] },
+	?getAttr(probe_ref) ! { setData, [ CurrentTick, { ?getAttr(can_count) } ] },
 
-	?wooper_return_state_only( State ).
+	wooper:const_return().
 
 
 
 % Called by a customer wanting to know the cost of a can for this machine.
-%
-% (actor oneway)
-%
--spec getCanCost( wooper:state(), pid() ) ->
-						class_Actor:actor_oneway_return().
+-spec getCanCost( wooper:state(), sending_actor_pid() ) ->
+						const_actor_oneway_return().
 getCanCost( State, CustomerPid ) ->
 
-	?info_fmt( "Telling to customer ~w the cost of a can.", [ CustomerPid ] ),
+	?notice_fmt( "Telling to customer ~w the cost of a can.", [ CustomerPid ] ),
 
-	CustomerPid ! { setCanCost, ?getAttr(can_cost) }.
+	CustomerPid ! { setCanCost, ?getAttr(can_cost) },
+
+	actor:const_return().
 
 
 
 % Called by a customer wanting to purchase a can.
-%
-% (actor oneway)
-%
--spec orderSoda( wooper:state(), amount(), pid() ) ->
-					   class_Actor:actor_oneway_return().
+-spec orderSoda( wooper:state(), amount(), sending_actor_pid() ) ->
+					   actor_oneway_return().
 orderSoda( State, CustomerBudget, CustomerPid ) ->
 
 	NewState = case ?getAttr(can_count) of
@@ -147,7 +112,7 @@ orderSoda( State, CustomerBudget, CustomerPid ) ->
 			case ?getAttr(can_cost) of
 
 				CanCost when CanCost > CustomerBudget ->
-					?info( "Order failed, as customer is not rich enough." ),
+					?notice( "Order failed, as customer is not rich enough." ),
 					class_Actor:send_actor_message( CustomerPid,
 													onNotEnoughMoney, State );
 
@@ -165,7 +130,7 @@ orderSoda( State, CustomerBudget, CustomerPid ) ->
 
 	end,
 
-	?wooper_return_state_result( NewState, CustomerBudget ).
+	wooper:return_state_result( NewState, CustomerBudget ).
 
 
 
@@ -175,8 +140,6 @@ orderSoda( State, CustomerBudget, CustomerPid ) ->
 % depending on whether it is run in batch mode or not, probe displaying is
 % wanted or not.
 %
-% (const request)
-%
--spec getProbe( wooper:state() ) -> request_return( pid() ).
+-spec getProbe( wooper:state() ) -> const_request_return( probe_ref() ).
 getProbe( State ) ->
-	?wooper_return_state_result( State, ?getAttr(probe) ).
+	const_return_result( ?getAttr(probe_ref) ).

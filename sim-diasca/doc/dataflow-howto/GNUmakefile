@@ -1,5 +1,6 @@
 SIM_DIASCA_TOP = ../..
 
+.PHONY: all pdf toolbox-archive info-archive clean-local
 
 DIAGRAM_ARCHIVE := dataflow-diagram-toolbox.zip
 
@@ -12,9 +13,7 @@ DIAGRAMS := dataflow-city-example.dia dataflow-basic-example.graph    \
 .PHONY: all toolbox-archive track info-tool info-archive clean-local
 
 
-OVERALL_DOCUMENT_SOURCE = $(DATAFLOW_HOWTO)
-
-DOC_SRC := SimDiasca-dataflow-howto-english.rst
+OVERALL_DOCUMENT_SOURCE := SimDiasca-dataflow-howto-english.rst
 
 
 # Default do-nothing target:
@@ -24,6 +23,8 @@ all:
 	@echo "  Run 'make toolbox-archive' to generate the "\
 	"dataflow diagram archive."
 
+
+pdf: full-doc
 
 toolbox-archive: clean-local $(DIAGRAM_ARCHIVE)
 
@@ -40,28 +41,13 @@ README.txt:
 	@echo "They can be used as a starting basis when devising one's dataflow (one may preferably rely on 'urban-example-dataflow.dia' for that)." >> README.txt
 
 
-
-TRACKER := $$(which track-make-automatic-source.sh)
-
-track:
-	@echo "Updating $(DATAFLOW_HOWTO) by tracking the changes of its source"
-	@$(TRACKER) $(DOC_SRC)
-
-
-
 # Root specified as we want to catch the doc in src/core as well:
-#
 DOCUTILS_TOP = $(SIM_DIASCA_TOP)
-
-
-info-tool:
-	@echo "TRACKER = $(TRACKER)"
 
 
 info-archive:
 	@echo "DIAGRAM_ARCHIVE = $(DIAGRAM_ARCHIVE)"
 	@echo "DIAGRAMS = $(DIAGRAMS)"
-
 
 
 clean-local:

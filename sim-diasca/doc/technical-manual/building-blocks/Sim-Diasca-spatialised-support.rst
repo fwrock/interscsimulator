@@ -10,7 +10,7 @@ Currently only a support for 2D environments is provided - of course the user mi
 
 The spatial environment is embodied by an instance (a singleton) of ``class_TwoDimensionalEnvironment``.
 
-The support for low-level spatial computations is provided by the ``linear_2D`` module (in ``common/src/maths``).
+The support for low-level spatial computations is provided by the ``linear_2D`` module (in ``myriad/src/maths``).
 
 Distances are expressed in meters, speeds in meters per second.
 

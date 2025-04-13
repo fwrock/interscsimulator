@@ -10,7 +10,7 @@ Type Specifications: What For?
 
 Adding a type specification (shorthand: *spec*) to the source code of a function means specifying what are its intended input and output parameters, in terms of number and types. This can be applied to records as well.
 
-Once all Sim-Diasca code (including prerequisites, like ``Common``, ``WOOPER`` and ``Traces``) and the one of user applications based on it (ex: ``Mock-Simulators`` or any actual simulator) have been instrumented with type specifications (i.e. when all exported functions and records of all modules have a proper spec), then:
+Once all Sim-Diasca code (including prerequisites, like ``Myriad``, ``WOOPER`` and ``Traces``) and the one of user applications based on it (ex: ``Mock-Simulators`` or any actual simulator) have been instrumented with type specifications (i.e. when all exported functions and records of all modules have a proper spec), then:
 
 - static checkings can be done: `Dialyzer <http://www.it.uu.se/research/group/hipe/dialyzer>`_ is able to detect various discrepancies (such as type errors, unreachable code, unnecessary tests, etc.) at compile-time (therefore a lot earlier than at runtime, and allowing to examine *a priori* all code paths)
 
@@ -39,7 +39,7 @@ We prefer to have Dialyzer operate on BEAM files (``*.beam``) rather than on sou
 
 These BEAM files must have been compiled with debug information (i.e. with the ``+debug_info`` compiler option). This is thus the default enforced for the full Sim-Diasca software stack.
 
-When writing type specifications, one must know what are the built-in ones, in order to re-use them, so that they do not end up being defined more than once, under different names. To do so, one may use our ``common/src/scripts/list-available-types.sh`` script, like in::
+When writing type specifications, one must know what are the built-in ones, in order to re-use them, so that they do not end up being defined more than once, under different names. To do so, one may use our ``myriad/src/scripts/list-available-types.sh`` script, like in::
 
   $ cd otp_src_RxBy
   $ list-available-types.sh | tee declared-types-in-Erlang-RxBy.txt
@@ -51,7 +51,7 @@ ___________________________
 
 Once a PLT is available for Erlang/OTP, PLTs are to be generated for the entire codebase of interest (typically Sim-Diasca and its prerequisites, and possibly user code as well).
 
-This can be achieved with the ``generate-all-plt`` make target, to be run from the root of either a check-out or an install. The script will climb our software stack layer by layer, and generate for each a custom PLT (ex: ``common.plt``).
+This can be achieved with the ``generate-all-plt`` make target, to be run from the root of either a check-out or an install. The script will climb our software stack layer by layer, and generate for each a custom PLT (ex: ``myriad.plt``).
 
 
 If, for any reason, the PLT of a layer must be (re)generated, simply use the ``generate-local-plt`` make target from the root of this layer.
@@ -91,7 +91,7 @@ Following conventions are to respect:
 - Dialyzer should be run regularly against the codebase to check frequently whether the sources are correct
 
 
-For a larger codebase to instrument with type specs, it may be useful to start first with the specs that can be deduced by Dialyzer from the actual code of functions. This can be done thanks to our ``add-deduced-type-specs.escript`` script (in ``common/src/scripts``). One should note that these specs are not, in the general case, the ones that the developer would have written (as Dialyzer cannot guess the intent of the original developer), so at least some adaptation work remains (ex: to define reusable types).
+For a larger codebase to instrument with type specs, it may be useful to start first with the specs that can be deduced by Dialyzer from the actual code of functions. This can be done thanks to our ``add-deduced-type-specs.escript`` script (in ``myriad/src/scripts``). One should note that these specs are not, in the general case, the ones that the developer would have written (as Dialyzer cannot guess the intent of the original developer), so at least some adaptation work remains (ex: to define reusable types).
 
 
 .. Note::
@@ -114,7 +114,7 @@ In the context of each layer, one may routinely run::
 
 This allows to list all the types that are unknown (generally misspelled or not exported) and spot a few kinds of errors (ex: ``Call to missing or unexported function``).
 
-For a layer ``foo`` (ex: ``Common``, ``WOOPER``, etc.), one should run from its root directory::
+For a layer ``foo`` (ex: ``Myriad``, ``WOOPER``, etc.), one should run from its root directory::
 
   $ make self-check-against-plt
 

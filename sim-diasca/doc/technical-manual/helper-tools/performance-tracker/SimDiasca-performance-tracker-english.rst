@@ -99,24 +99,24 @@ Performance Tracker Report Example
 
 One can have a global view of the simulation, first in *wall-clock* time:
 
-:raw-html:`<img src="example1_process_tracker_in_wall_clock_time.png"></img>`
+:raw-html:`<center><img src="example1_process_tracker_in_wall_clock_time.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example1_process_tracker_in_wall_clock_time.png}`
 
 
 The same global view can also be shown in *simulation* time:
 
-:raw-html:`<img src="example1_process_tracker_on_simulation_time.png"></img>`
+:raw-html:`<center><img src="example1_process_tracker_on_simulation_time.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example1_process_tracker_on_simulation_time.png}`
 
 
 
 More detailed information can be collected, on a per node basis. Here first is the report specific to the *user* node, in wall-clock time, then the same report for a *computing* node:
 
-:raw-html:`<img src="example1_memory_tracker_on_user_node.png"></img>`
+:raw-html:`<center><img src="example1_memory_tracker_on_user_node.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example1_memory_tracker_on_user_node.png}`
 
 
-:raw-html:`<img src="example1_memory_tracker_on_computing_node.png"></img>`
+:raw-html:`<center><img src="example1_memory_tracker_on_computing_node.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example1_memory_tracker_on_computing_node.png}`
 
 
@@ -136,32 +136,32 @@ More detailed information can be collected, on a per node basis. Here first is t
 
 One can have a global view of the simulation, first in *wall-clock* time:
 
-:raw-html:`<img src="example_process_tracker_in_wall_clock_time.png"></img>`
+:raw-html:`<center><img src="example_process_tracker_in_wall_clock_time.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example_process_tracker_in_wall_clock_time.png}`
 
 
 The same global view can also be shown in *simulation* time:
 
-:raw-html:`<img src="example_process_tracker_on_simulation_time.png"></img>`
+:raw-html:`<center><img src="example_process_tracker_on_simulation_time.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example_process_tracker_on_simulation_time.png}`
 
 
 More detailed memory consumption information can be collected. Here first is the report specific to the *user* node, in wall-clock time, then the same report for  *computing* nodes:
 
-:raw-html:`<img src="example_memory_tracker_on_user_node.png"></img>`
+:raw-html:`<center><img src="example_memory_tracker_on_user_node.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example_memory_tracker_on_user_node.png}`
 
 
-:raw-html:`<img src="example_memory_tracker_on_computing_node_1.png"></img>`
+:raw-html:`<center><img src="example_memory_tracker_on_computing_node_1.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.2]{example_memory_tracker_on_computing_node_1.png}`
 
 
 .. comment Not useful enough:
- :raw-html:`<img src="example_memory_tracker_on_computing_node_2.png"></img>`
+ :raw-html:`<center><img src="example_memory_tracker_on_computing_node_2.png"></img></center>`
  :raw-latex:`\includegraphics[scale=0.2]{example_memory_tracker_on_computing_node_2.png}`
 
- :raw-html:`<img src="example_memory_tracker_on_computing_node_3.png"></img>`
+ :raw-html:`<center><img src="example_memory_tracker_on_computing_node_3.png"></img></center>`
  :raw-latex:`\includegraphics[scale=0.2]{example_memory_tracker_on_computing_node_3.png}`
 
- :raw-html:`<img src="example_memory_tracker_on_computing_node_4.png"></img>`
+ :raw-html:`<center><img src="example_memory_tracker_on_computing_node_4.png"></img></center>`
  :raw-latex:`\includegraphics[scale=0.2]{example_memory_tracker_on_computing_node_4.png}`

@@ -1,4 +1,4 @@
-% Copyright (C) 2008-2017 EDF R&D
+% Copyright (C) 2008-2021 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
@@ -25,7 +25,6 @@
 
 
 % Runs the test.
-%
 -spec run() -> no_return().
 run() ->
 
@@ -39,7 +38,7 @@ run() ->
 
 	  % We leave it to the default specification (all_outputs):
 	  % result_specification =
-	  %  [ { targeted_patterns, [ {".*",[data_and_plot]} ] },
+	  %  [ { targeted_patterns, [ {".*",[data_and_rendering]} ] },
 	  %    { blacklisted_patterns, ["^Second" ] } ]
 
 	  %result_specification = [ { targeted_patterns, [ {".*",data_only} ] } ]
@@ -100,8 +99,8 @@ run() ->
 	DeploymentManagerPid ! { getRootTimeManager, [], self() },
 	RootTimeManagerPid = test_receive(),
 
-	?test_info_fmt( "Starting simulation, "
-		"for a stop at tick offset #~B.", [ StopTick ] ),
+	?test_notice_fmt( "Starting simulation, "
+					  "for a stop at tick offset #~B.", [ StopTick ] ),
 
 	RootTimeManagerPid ! { start, [ StopTick, self() ] },
 

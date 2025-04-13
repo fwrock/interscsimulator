@@ -11,7 +11,7 @@ Sim-Diasca Changes
 
 Starting from the 2.x versions, we did extensive efforts to preserve backward compatibility, so that most of the pre-existing user workflows are preserved.
 
-:raw-html:`<img src="xkcd-workflow.png"></img>`
+:raw-html:`<center><img src="xkcd-workflow.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-workflow.png}`
 
 
@@ -83,7 +83,7 @@ Version 2.0.5
 
 Released on Tuesday, February 9, 2010; main changes were:
 
- - in 'common':
+ - in 'myriad':
 
    - integrated ``text_utils``
 
@@ -112,7 +112,7 @@ Released on Thursday, April 8, 2010.
 
 Main changes were:
 
- - in ``Common``, among a large number of other helper functions, now sorted in topic-based subdirectories, smart automatic waiting for file descriptors has been added ; selection of compilation options improved (ex: warning are now treated as errors, at last)
+ - in ``Myriad``, among a large number of other helper functions, now sorted in topic-based subdirectories, smart automatic waiting for file descriptors has been added ; selection of compilation options improved (ex: warning are now treated as errors, at last)
 
  - in ``WOOPER``, error messages were still more clarified and better pretty-printed, and all the state management functions (like setAttribute/3) are now fully inlined by the compiler, thanks to proper and specific compilation directives (thus no performance penalty at all compared to the legacy macros)
 
@@ -147,7 +147,7 @@ Released on Thursday, June 10, 2010.
 
 Main changes were:
 
- - in ``Common``:
+ - in ``Myriad``:
 
    - opening of files when lacking file descriptors leads now by default directly to a clear error rather than a less clear and often unsuccessful attempt of overcoming it
 
@@ -195,7 +195,7 @@ Released on Monday, September 13, 2010.
 
 Main changes were:
 
- - in ``Common``: various facilities to scan a directory tree added
+ - in ``Myriad``: various facilities to scan a directory tree added
 
  - in ``Sim-Diasca``:
 
@@ -226,7 +226,7 @@ Mainly a BFO (*Bug Fixes Only*) release.
 
 Most significant changes were:
 
- - in ``Common``: bug in the command-line argument specified for the debug key, found and fixed by Cédric Pasteur (cedric.pasteur at ens.fr)
+ - in ``Myriad``: bug in the command-line argument specified for the debug key, found and fixed by Cédric Pasteur (cedric.pasteur at ens.fr)
 
  - in ``WOOPER``: unexpected messages are now notified with the PID of the receiving instance
 
@@ -265,13 +265,13 @@ Most significant changes were:
 
  - all layers: tests, applications, traces facilities have been improved (ex: no more macros) and integrated
 
- - in ``Common``:
+ - in ``Myriad``:
 
    - support for smart exceptions has been added (but is currently disabled due to a bug in their parse transform)
 
    - support for basic stats (ex: file count, line count split in empty/code/comment ratios) added (run ``make stats`` for the Sim-Diasca root)
 
-   - user-defined code paths are transformed now into absolute ones, so that the current directory can be changed while still being able to load newly referenced modules; as a consequence, far longer paths were displayed on the console, thus the verbose mode for the Erlang launcher has been disabled (add '-v' to the ``ERL_PARAMETERIZED_LAUNCHER`` definition in ``common/GNUmakevars.inc`` to restore this behaviour for debugging)
+   - user-defined code paths are transformed now into absolute ones, so that the current directory can be changed while still being able to load newly referenced modules; as a consequence, far longer paths were displayed on the console, thus the verbose mode for the Erlang launcher has been disabled (add '-v' to the ``ERL_PARAMETERIZED_LAUNCHER`` definition in ``myriad/GNUmakevars.inc`` to restore this behaviour for debugging)
 
 
  - in ``Sim-Diasca``:
@@ -318,7 +318,7 @@ Most significant changes will be:
 
    - the ``add-deduced-type-specs.escript`` script has been completed, fixed and applied to the whole Sim-Diasca codebase
 
-   - measures have been taken so that all tests (either at the Common-level with ``test_facilities:start/1``, or at the Trace-level with the ``test_start/0`` macro) are run without trapping exits anymore, which was the default (otherwise some failures could be silent)
+   - measures have been taken so that all tests (either at the Myriad-level with ``test_facilities:start/1``, or at the Trace-level with the ``test_start/0`` macro) are run without trapping exits anymore, which was the default (otherwise some failures could be silent)
 
    - all main loops of spawned processes are spawned thanks to (correct) closures now, to avoid having to export the corresponding functions
 
@@ -329,7 +329,7 @@ Most significant changes will be:
    - all layers have been analyzed thanks to Dialyzer (automated make targets added), and their code has been improved accordingly
 
 
- - in ``Common``:
+ - in ``Myriad``:
 
    - support for smart exceptions has been removed (their code was faulty and they were superseded by R15B features)
 
@@ -413,7 +413,7 @@ Most significant changes were:
    - more records have been used, to better structure exchanged tuples
 
 
- - in ``Common``: many additions; utility functions have been dispatched into more numerous modules (ex: ``list_utils``, ``random_utils``, etc.)
+ - in ``Myriad``: many additions; utility functions have been dispatched into more numerous modules (ex: ``list_utils``, ``random_utils``, etc.)
 
 
  - in ``WOOPER``: error output has been further improved (ex: attributes sorted alphabetically, their values being truncated if appropriate, etc.)
@@ -440,7 +440,7 @@ Most significant changes were:
 
  - in general: all mechanisms tested and updated (ex: production mode), full code checked against Dialyzer
 
- - in ``Common``: various minor additions; in GUI, ``gs`` has been fully replaced by ``wx``
+ - in ``Myriad``: various minor additions; in GUI, ``gs`` has been fully replaced by ``wx``
 
  - in ``Traces``: timestamps now are reported in LogMX as tick offsets rather than absolute ticks, for a far better readability
 
@@ -468,7 +468,7 @@ Released on Thursday, June 27, 2013.
 
  - in general: we switched from SVN to GIT, and rewrote many rules (ex: to generate releases) accordingly, relying on an improved layout
 
- - in ``Common``:
+ - in ``Myriad``:
 
    - a very fast file sending system has been added (see in ``send_file/2`` and ``receive_file/{1,2,3}`` in ``net_utils``)
 
@@ -505,7 +505,7 @@ Not realised yet.
 Future Versions
 ---------------
 
-:raw-html:`<img src="xkcd-mu.png"></img>`
+:raw-html:`<center><img src="xkcd-mu.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-mu.png}`
 
 

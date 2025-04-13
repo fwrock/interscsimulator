@@ -6,7 +6,7 @@ Sim-Diasca Hints
 
 Some general hints are detailed here.
 
-:raw-html:`<img src="xkcd-wisdom_of_the_ancients.png"></img>`
+:raw-html:`<center><img src="xkcd-wisdom_of_the_ancients.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-wisdom_of_the_ancients.png}`
 
 
@@ -14,9 +14,19 @@ Some general hints are detailed here.
 Common Pitfalls
 ===============
 
+
+ - the ``class_Actor:onFirstDiasca/2`` actor oneway of all initial actors is to be called when the simulation starts, so that they can finish their initialisation; this does not imply that all initial actors will process the corresponding actor message exactly at diasca 1 (knowing that the load balancer was the only actor to be scheduled spontaneously, at diasca 0, and is the sender of these messages): in order to smooth the load (should there be a large number of initial actors), these calls to ``onFirstDiasca/2`` will be dispatched over the first few diascas; as always, models shall be written based on the causality induced by message exchanges - not based on diascas being counted
+
  - when an actor instance is created from another one, it should be created *synchronously*, through the load balancer; the creator should wait for the creation to be notified, otherwise for example the created instance *could* subscribe on the next tick instead of on the current one
 
+
+ - **no message shall be sent, directly or not, from the constructor of an actor**; worst could be a ``oneway`` one (it is asynchronous, hence prone to race conditions); ``requests``, despite their synchronous nature, shall not be used either, as no creation order among the initial actors shall be assumed (there is no guarantee that the targeted actor is already responsive - which may block the sender; ex: if the sending actor is read in batch from an initialisation file, while the targeted actor will be created in a later batch); even ``actor messages`` shall not be used, as initial actors are not synchronised before the simulation start; as a result::
+
+	Only actor messages shall be exchanged, and the first place for it to happen in the life cycle of an actor in its ``class_Actor:onFirstDiasca/2`` actor oneway. As a bonus, it is also the guarantee that an actor will behave the same whether it is an initial one or it is created in the course of the simulation.
+
  - communication between actors should *only* rely on the exchange of actor messages (no basic WOOPER method invocation or direct Erlang message sending allowed)
+
+- no actor message shall be sent from a destructor, as the deleted actor may not be still (or at all) synchronised to the simulation (ex: if not having acted spontaneously nor having received an actor message in the current tick offset); such a deletion can indeed be triggered from a non-actor context (ex: at simulation teardown, by a time manager), which would potentially result in a synchronisation error being detected (an actor message being sent in the past of the target actor); so the deletion of an actor shall be ultimately decided by itself, any actor-based operation to be performed then shall be done beforehand (either from ``actSpontaneous/1`` or an actor oneway), before entering the destructor (see ``class_Actor:declareTermination/{1,2}`` instead)
 
  - to reduce the number of messages exchanged over the network and more generally to increase speed, trace sending is asynchronous (i.e. non-blocking). Thus if ever a simulation happens to send way too many traces (actors too verbose), then:
 
@@ -48,36 +58,43 @@ Good Practices
 
  - each model should better be documented into a wiki page of its own
 
+ - when designing complex-enough inter-actor protocols, diagrams such as the next one may help:
+
+:raw-html:`<center><img src="actor-message-example-diagram.png"></img></center>`
+:raw-latex:`\includegraphics[scale=0.25]{actor-message-example-diagram.png}`
+
 
 
 Lesser-Known Features
 =====================
 
 
-:raw-html:`<img src="xkcd-nine.png"></img>`
+:raw-html:`<center><img src="xkcd-nine.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-nine.png}`
 
 One should be aware that:
 
- - even if the most usual mode of operation for SimDiasca-based simulators is the *batch* mode, the engine can also work in **interactive** mode as well, where the simulation is kept on par with the wallclock time (rather than running as fast as possible)
+ - even if the most usual mode of operation for SimDiasca-based simulators is the *batch* mode, the engine can also work in **interactive** mode as well (see the ``simulation_interactivity_mode`` field of the ``simulation_settings`` record in ``class_TimeManager.hrl``), where the simulation is kept on par with the wallclock time (rather than running as fast as possible); note to be confused with the ``--batch`` command-line option (see ``CMD_LINE_OPT="--batch"``), which means that no graphical output is wanted (just textual ones on the console then)
 
- - by default, the engine works in reproducible mode, based on a constant random seed, leading to always the same simulation trajectory for a simulation case; the engine can also work on (reproducible) **ergodic** mode, in which it changes the random seed at each simulation run, so that all the various possible trajectories can be explored, instead of just an arbitrary one
+ - by default, the engine works in reproducible mode, based on a constant random seed, leading to always the same simulation trajectory for a simulation case; the engine can also work on (reproducible) **ergodic** mode (refer to the ``evaluation_mode`` field in the same record as the previous hint), in which it changes the random seed at each simulation run, so that all the various possible trajectories can be explored, instead of just an arbitrary one
 
- - by default, probes write their results onto raw files; a database-based back-end is available as well, see the **Data-Logger** module for that
+ - by default, probes write their results onto raw files; a database-based back-end is available as well, see the **Data-Logger** module for that (refer to ``class_DataLogger.erl`` for that)
 
- - the engine includes a performance tracker, a service that can be enabled to track the behaviour of a simulation over both wall-clock and virtual time, and also its detailed resource consumption
+ - the engine includes a performance tracker, a service that can be enabled to track the behaviour of a simulation over both wall-clock and virtual time, and also its detailed resource consumption (see the ``class_PerformanceTracker.erl`` for that); of course complementary insights can come from the operating system and from the Erlang VM itself
+
+- most users do not modify the code of engine itself, they mostly update repeatedly their simulation; therefore, in order to speed up the launching of a simulation (especially when being in the process of implementing it), since the 2.3.8 version of Sim-Diasca, the ``rebuild_on_deployment_package_generation`` field of ``deployment_settings`` record (in ``class_DeploymentManager.hrl``) is now set by default to ``false``; even with a SSD disk, a significant speed up can be noticed
 
 
 
 Other Useful Information
 ========================
 
- - a WOOPER-aware ``Nedit`` Erlang configuration file is available (see ``common/conf/nedit.rc``)
+ - a WOOPER-aware ``Nedit`` Erlang configuration file is available (see ``myriad/conf/nedit.rc``)
 
  - all Sim-Diasca Erlang source files (``.hrl/.erl``) should start with the appropriate LGPL header defined in ``sim-diasca/doc/licence/licence-header-erlang.txt``
 
 
- - the used Erlang environment should better be built thanks to a shell script we provide, ``common/conf/install-erlang.sh``, to streamline this process; use for example ``common/conf/install-erlang.sh --cutting-edge --doc-install``; add the ``--generate-plt`` option if intending to make any actual development in the future
+ - the used Erlang environment should better be built thanks to a shell script we provide, ``myriad/conf/install-erlang.sh``, to streamline this process; use for example ``myriad/conf/install-erlang.sh --cutting-edge --doc-install``; add the ``--generate-plt`` option if intending to make any actual development in the future
 
  - in the cases where LogMX cannot be used to monitor the simulation traces, a fall-back system can be chosen instead: traces can be output as a human-readable text file which can be read by any text viewer; to do so, one just has to edit the ``sim-diasca/src/core/src/test_constructs.hrl`` file, in which ``-define(TraceType,log_mx_traces).`` should be replaced by ``-define(TraceType,text_traces).``
 
@@ -87,11 +104,11 @@ Other Useful Information
 
  - how is this temporary data organised? In the general case, there are three top-level directories:
 
-  - ``deployed-elements``, which contains the simulation archive (typically ``Sim-Diasca-deployment-archive.sdar``) and the extracted trees thereof (typically with the main simulator layers, like ``common``, ``wooper``, ``traces``, etc.)
+  - ``deployed-elements``, which contains the simulation archive (typically ``Sim-Diasca-deployment-archive.sdar``) and the extracted trees thereof (typically with the main simulator layers, like ``myriad``, ``wooper``, ``traces``, etc.)
 
   - ``outputs``, where simulation probes write their files (``*.dat`` for data, ``*.p`` for the corresponding commands); as for technical probes (ex: for the performance tracker), they are directly written in the final result directory, as they must remain available in all cases (even if the simulation crashed)
 
-  - ``resilience-snapshots``, where the persistance files for each secured node are stored, based on the tick and diasca of the serialisation and the node on which it was done (ex: ``serialisation-5719-0-from-cluster-node-147.example.org``)
+  - ``resilience-snapshots``, where the persistance files for each secured node are stored, based on the tick and diasca of the serialisation and the node on which it was done (ex: ``serialisation-5719-0-from-cluster-node-147.foobar.org``)
 
  - what are the constraints applying to the name of an attribute? Such a name must be an atom, and all names starting with ``wooper_``, ``traces_`` or ``sim_diasca_`` are reserved, and thus shall not be used
 
@@ -131,7 +148,7 @@ then running a test as ``make my_test_run $BATCH`` will prevent any Sim-Diasca r
 
  - in case of a failure during a simulation, some Erlang nodes may linger on various computing hosts and be on the way of the next run; to ensure each new run cleans up any lingering node before launching a simulation, one may set the ``perform_initial_node_cleanup`` field in the ``deployment_settings`` record to true (see ``class_DeploymentManager.hrl``). Then another step will be added to the simulation start (which thus will take a bit longer), but no new run will have to reject a computing host because of an already existing node running with the target name but a different cookie; in all cases, a simulation cannot use such nodes by mistake, thanks to the unique cookie it generates at each launch
 
- - one may use the ``common/src/fix-all-sources.sh`` script periodically (from fully check-ined sources) to clean-up sources and remove unbreakable spaces
+ - one may use the ``myriad/src/fix-all-sources.sh`` script periodically (from fully check-ined sources) to clean-up sources and remove unbreakable spaces
 
  - in some cases, mostly related to probe storage or post-processing, for example if wanting to create a large number of basic probes using immediate (non-deferred) writes (which is the default), you may be hindered by the maximum number of open file descriptors, which is usually set to 1024, thereby limiting the number of basic probes to, roughly, a thousand per computing node; one can use ``ulimit -n 20000`` to set the maximum number of open file descriptors to 20,000, or modify the ``nofile`` item in ``/etc/security/limits.conf`` file; as both operations require root privileges on most systems, this is not managed by Sim-Diasca
 

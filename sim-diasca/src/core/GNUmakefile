@@ -1,7 +1,7 @@
 SIM_DIASCA_TOP = ../..
 
 
-MODULES_DIRS = doc generic mesh space src
+MODULES_DIRS = doc generic mesh space services
 
 
 # No trace supervisor or graphical output wanted when running all tests from a

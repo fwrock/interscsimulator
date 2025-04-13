@@ -9,7 +9,7 @@ General View
 
 
 
-:raw-html:`<img src="technical-architecture-english.png"></img>`
+:raw-html:`<center><img src="technical-architecture-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.4]{technical-architecture-english.png}`
 
 
@@ -37,7 +37,7 @@ We made significant use of `PBS-based <http://en.wikipedia.org/wiki/Portable_Bat
 
 
 Tools For the Sim-Diasca Simulation Engine Itself
-=============================================
+=================================================
 
 
 Erlang
@@ -58,7 +58,7 @@ The Erlang virtual machine schedules itself all the Erlang processes it is hosti
 
 Erlang processes execute *functions* that are gathered in *modules*. Being Erlang code, they are implemented in a declarative, functional way, with single-assignment, absence of side-effects, pattern-matching and recursive behaviour:
 
-:raw-html:`<img src="xkcd-dependencies.png"></img>`
+:raw-html:`<center><img src="xkcd-dependencies.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-dependencies.png}`
 
 
@@ -72,6 +72,13 @@ However traditional sequential languages cannot cope gracefully with such a para
 
 
 
+Myriad
+------
+
+`Myriad <http://myriad.esperide.org/>`_ (precisely, Ceylan-Myriad) is a generic toolbox built on top of Erlang, offering many low-level services used by all the upper layers involved here.
+
+
+
 WOOPER
 ------
 
@@ -81,9 +88,9 @@ Indeed, the modelling of numerous and complex behaviours is easier if being able
 
 Implementation is itself easier if the language supports some way of relying on a direct mapping between the OOP modelling concepts and the nuts and bolts offered by that language.
 
-As classical Erlang is process-based and declarative, the OOP constructs have to added to the language. This is the task of `WOOPER <http://ceylan.sourceforge.net/main/documentation/wooper/>`_, which stands for *Wrapper for OOP in Erlang*.
+As classical Erlang is process-based and declarative, the OOP constructs have to added to the language. This is the task of `WOOPER <http://wooper.esperide.org/>`_, which stands for *Wrapper for OOP in Erlang*.
 
-WOOPER is a very lightweight layer that adds some code and conventions to Erlang so that a full-blown OOP approach can be applied directly to the language, at the expense of very little additional developing efforts and only a small run-time overhead.
+WOOPER (precisely, Ceylan-Myriad) is a very lightweight layer that adds some code and conventions to Erlang so that a full-blown OOP approach can be applied directly to the language, at the expense of very little additional developing efforts and only a small run-time overhead.
 
 Therefore, from that level on, we will not speak in terms of Erlang processes any more, we will mostly be dealing with instances of WOOPER classes.
 

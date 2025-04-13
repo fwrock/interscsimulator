@@ -6,7 +6,7 @@ Modelling Approach
 ------------------
 
 
-:raw-html:`<img src="xkcd-physicists.png"></img>`
+:raw-html:`<center><img src="xkcd-physicists.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.65]{xkcd-physicists.png}`
 
 
@@ -39,7 +39,7 @@ Moreover, the same element of the target system might be modeled differently dep
 
 Therefore each element of the system can be represented by a set of models, of various nature and level of detail, results of the work of experts on various subjects, according to the following theoretical diagram:
 
-:raw-html:`<img src="modelling-approach-english.png"></img>`
+:raw-html:`<center><img src="modelling-approach-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{modelling-approach-english.png}`
 
 Different fields of expertise (notably functional and technical experts) have to define the simulation goals, metrics, and to work collaboratively on a set of common models, which form the modelling framework.

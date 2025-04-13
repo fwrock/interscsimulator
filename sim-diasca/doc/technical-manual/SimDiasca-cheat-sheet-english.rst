@@ -29,7 +29,7 @@ Alternatively, look at the ``SIM_DIASCA_VERSION`` variable in ``sim-diasca/GNUma
 
 As upgrading the Sim-Diasca version is fairly straightforward, we recommend to stick to the latest stable one, which simplifies considerably any support.
 
-Finally, the lower layers (namely Erlang itself, ``common``, ``wooper`` and ``traces``) have of course their own version as well, and the same holds for the upper layers, i.e. the actual simulations making use of Sim-Diasca (from the toy examples in ``mock-simulators`` to any user-provided one).
+Finally, the lower layers (namely Erlang itself, ``Myriad``, ``WOOPER`` and ``Traces``) have of course their own version as well, and the same holds for the upper layers, i.e. the actual simulations making use of Sim-Diasca (from the toy examples in ``mock-simulators`` to any user-provided one).
 
 Anyway, as a given version of Sim-Diasca is delivered with all its strictly mandatory prerequisites except Erlang, no particular checking of their version is necessary, as they collectively form a consistent bundle.
 
@@ -107,10 +107,114 @@ In the general case, distributed simulations running on ``N`` hosts will involve
 See the ``computing_hosts`` field in the ``deployment_settings`` record (defined in ``class_DeploymentManager.hrl``) for further options.
 
 
+.. _`distributed cheat sheet`:
+
+
+What Constraints shall be Observed in order to run in a Distributed Manner (ex: on a cluster)?
+==============================================================================================
+
+Let's suppose that you benefit from a set of hosts, either ad hoc or allocated on a cluster by a job manager such as `Slurm <https://en.wikipedia.org/wiki/Slurm_Workload_Manager>`_.
+
+These hosts are expected to run GNU/Linux, to be rather homogeneous in terms of processing power and configuration, and to be interlinked thanks to a suitable IPv4 [#]_ communication network providing at least DNS services, and possibly ping (ICMP) ones [#]_.
+
+.. [#] If the network is by default using IPv6, generally a setting allows to present it as an IPv4 network to applications.
+
+.. [#] If no ping service is available, then, in the ``deployment_settings`` record of your simulation case, set ``ping_available=false``, and the simulation will try directly to SSH-connect to hosts (possibly inducing longer timeouts).
+
+When specifying these hosts (ex: in a host file of the ``computing_hosts`` field of the deplyment record, or directly in the simulation case), their DNS name (more precisely, their FQDN) shall be retained (not, for example, their IP address).
+
+Moreover, for the simulation user, a SSH password-less authentication must be possible at least from the user host to each of the computing hosts, so that the former can spawn an Erlang VM on the latter.
+
+Indeed, all hosts, be them the user one or a computing one, must be able to run their own Erlang virtual machine; as a result the Erlang environment must have been installed, typically thanks to our ``myriad/conf/install-erlang.sh`` script.
+
+Quite often HPC clusters implement a distributed filesystem (ex: mounted in ``/scratch``, thanks to NFS, Lustre or any similar solution), in which case a single Erlang installation can be done once for all, each computing node creating its own VM from it.
+
+If no such distributed filesystem exists, the Erlang environment must be deployed/installed on each computing host, by any relevant means.
+
+These target Erlang installations must be readily available from the default ``PATH`` that is obtained from a SSH connection to a computing host: from the user host, ``ssh A_COMPUTING_NODE erl`` should successfully run an Erlang VM.
+
+As for Sim-Diasca, its own Ceylan prerequisites (namely `Myriad <http://myriad.esperide.org/>`_, `WOOPER <http://wooper.esperide.org/>`_ and `Traces <http://traces.esperide.org/>`_), the engine itself and the user-defined simulation elements (simulation case, models, data, etc.), the whole will be automatically deployed from the user host to the computing ones, according to the specified simulation settings.
+
+One should thus ensure that these settings are complete, and that any third-party software used (ex: in models, in probes, etc.; including any language binding) is available on all computing hosts.
+
+Finally, we advise having a look to the help scripts defined in ``sim-diasca/conf/clusters``, which are meant to ease the management of Sim-Diasca jobs run on Slurm-based HPC clusters.
+
+
+
+What are the Most Common Gotchas encountered with Distributed Simulations?
+==========================================================================
+
+As soon as an application is distributed, a rather wide range of additional problems may appear.
+
+Here are a list of checks that might be of help:
+
+- is this simulation (possibly set to a lesser scale) running well on a single host?
+- has the full simulation been recompiled from scratch with success, using a recent version of Erlang?
+- is this version of Erlang uniform across all hosts involved in the simulation? (it is usually not strictly necessary, but is convenient to rule out some possible incompatibilities)
+- are ping (ICMP) messages supported by the hosts and network at hand? If no, set the ``ping_available`` field of the ``deployment_settings`` record to ``false``
+- does spawning a Erlang VM on a computing host non-interactively through SSH from the user host succeed? Ex: from the user host, ``ssh A_COMPUTING_HOST erl``
+- does it spawn a VM with the same, expected Erlang version? (ex: ``Eshell V10.2``)
+- can this VM be run with long names, and does it report the expected FQDN in its prompt? Ex: ``ssh COMPUTING_HOST_FQDN erl -name foo`` reporting ``(foo@COMPUTING_HOST_FQDN)1>``
+- are all hosts specified indeed by their FQDN? (rather than by a riskier mere hostname or, worse, by their IP address - which is not permitted)
+- on any host or network device, have fancier firewall rules been defined? (ex: ``iptables -L`` might give clues)
+- on a cluster, have the right hosts been allocated by the job manager, and is the user host one of them? (rather than for example being a front-end host, which surely should not be attempted)
+
+Should the problem remain, one may log interactively and perform operations manually to check whether the engine has a chance of succeeding when doing the same.
+
+
+What is the First Tick Offset of a Simulation?
+==============================================
+
+Tick offset #0.
+
+
 What is the First Diasca of a given Tick T?
-=========================================
+===========================================
 
 Diasca #0! Hence the corresponding simulation timestamp is ``{T,0}``.
+
+
+
+How a Simulation Starts?
+========================
+
+The root time manager is to be requested to start from the simulation case being run, typically by executing its ``start/{1,2,3}`` or ``startFor/{2,3}`` oneways.
+
+For that, the PID of the deployment manager shall be obtained first, thanks a call to one of the ``sim_diasca/{1,2,3}`` functions; for example::
+
+ DeploymentManagerPid = sim_diasca:init(SimulationSettings, DeploymentSettings)
+
+
+Then the PID of the root time manager can be requested from it::
+
+ DeploymentManagerPid ! { getRootTimeManager, [], self() },
+ RootTimeManagerPid = test_receive()
+
+
+The actual start can be then triggered thanks to::
+
+ RootTimeManagerPid ! { start, [ self() ] }
+
+
+This will evaluate the simulation from its first timestamp, ``{0,0}``:
+ - the ``simulationStarted/3`` request of all time managers will be triggered by the root one, resulting in the request being triggered (by transparent chunks) in turn to all initial actors so that they can be synchronised (i.e. so that they are notified of various information, mostly time-related); at this point they are still passive, have no agenda declared and are not fully initialized (their own initialization logic is to be triggered only when entering for good the simulation, at their fist diasca)
+ - then the root time manager auto-triggers its ``beginTimeManagerTick/2`` oneway
+ - then ``{0,0}`` is scheduled, and the load balancer (created, like the time managers, by the deployment manager) is triggered (by design no other actor can possibly in that case), for its first and only spontaneous scheduling, during which it will trigger in turn, over the first diascas (to avoid a potentially too large initial spike), the ``onFirstDiasca/2`` actor oneway of all initial actors (that it had spawned)
+
+As actors can schedule themselves only once fully ready (thus from their ``onFirstDiasca/2`` actor oneway onward), by design the load balancer is the sole actor to be scheduled at ``{0,0}`` (thus spontaneously), leading all other actors to be triggered for their first diasca only at ``{0,1}``, and possible next diascas, should initial actors be numerous.
+
+From that point they can start sending (and thus receiving) actor messages (while still at tick offset #0), or they can request a spontaneous activation at the next tick (hence at ``{1,0}``), see ``class_Actor:scheduleNextSpontaneousTick/1`` for that.
+
+
+In summary, from an actor's viewpoint, in all cases:
+
+- it is constructed first (no inter-actor message of any kind to be sent from there)
+- (it is synchronised to the simulation with its time manager - this step is fully transparent to the model developer)
+- its ``onFirstDiasca/2`` actor oneway is triggered once entering the simulation; it is up to this oneway to send actor messages and/or declare at least one spontaneous tick (otherwise this actor will remain purely passive)
+
+
+For more information about simulation cases, one may look at a complete example thereof, such as ``soda_deterministic_integration_test.erl``, located in ``mock-simulators/soda-test/test``.
+
 
 
 How Actors Are To Be Created?
@@ -287,21 +391,29 @@ Then the creation will transparently be done according to the placement hint, an
 How Constructors of Actors Are To Be Defined?
 =============================================
 
-Actor classes are to be defined exactly like any WOOPER classes (of course they have to inherit, directly or not, from ``class_Actor``), except that their first construction parameter must be their actor settings.
+Actor classes are to be defined like any WOOPER classes (of course they have to inherit, directly or not, from ``class_Actor``), except that their first construction parameter must be their actor settings.
 
 These settings (which include the actor's AAI, for *Abstract Actor Identifier*) will be specified automatically by the engine, and should be seen as opaque information just to be transmitted to the parent constructor(s).
 
 All other parameters (if any) are call *actual parameters*.
 
-For example, a ``class_Foo`` class may define its WOOPER construct parameters as::
+For example, a ``Foo`` class may define a constructor as:
 
-  -define( wooper_construct_parameters, ActorSettings,
-	 FirstParameter, SecondParameter ).
+.. code:: erlang
+
+  -spec construct(wooper:state(),actor_settings(),T1(), T2()) ->
+		  wooper:state().
+  construct(State,ActorSettings,FirstParameter,SecondParameter) ->
+	[...]
 
 
-If this class had taken no specific actual construction parameter, we would have had::
+Or course, should this class take no specific actual construction parameter, we would have had:
 
-  -define( wooper_construct_parameters, ActorSettings ).
+.. code:: erlang
+
+  -spec construct(wooper:state(),actor_settings()) -> wooper:state().
+  construct(State,ActorSettings) ->
+	[...]
 
 
 The creation of an instance will require all actual parameters to be specified by the caller (since the actor settings will be determined and assigned by the simulation engine itself).
@@ -317,6 +429,10 @@ For example:
   % by the engine.
 
 For a complete example, see ``class_TestActor.erl``.
+
+
+.. Note:: No message of any sort shall be sent by an actor to another one from its constructoir; see `Common Pitfalls`_ for more information.
+
 
 
 
@@ -337,13 +453,13 @@ For a complete example, see ``class_TestActor.erl``.
 How Actors Are To Interact?
 ===========================
 
-Actors must *only* interact based on ``actor messages`` (ex: using Erlang messages or WOOPER ones is *not* allowed), as otherwise even essential simulation properties could not be preserved.
+Actors must *only* interact based on ``actor messages`` (ex: using directly Erlang messages or WOOPER ones is *not* allowed), as otherwise even essential simulation properties could not be preserved.
 
 Thus the ``class_Actor:send_actor_message/3`` helper function should be used for each and every inter-actor communication (see the function header for a detailed usage information).
 
-As a consequence, only actor oneways are to be used, and if an actor A sends an actor message to an actor B at simulation timestamp {T,D}, then B will process it at tick {T,D+1}, i.e. at the next diasca (that will be automatically scheduled).
+As a consequence, only actor oneways are to be used, and if an actor A sends an actor message to an actor B at simulation timestamp ``{T,D}``, then B will process it at tick ``{T,D+1}``, i.e. at the next diasca (that will be automatically scheduled).
 
-Requests, i.e. a message sent from an actor A to an actor B (the question), to be followed by a message being sent back from B to A (the answer), must be implemented based on a round-trip exchange of actor oneways.
+Requests, i.e. a message sent from an actor A to an actor B (the question), to be followed by a message being sent back from B to A (the answer), must be implemented based on a round-trip exchange of two actor oneways, one in each direction.
 
 For example, if actor A wants to know the color of actor B, then:
 
@@ -359,6 +475,58 @@ Finally, the only licit case involving the direct use of a WOOPER request (inste
 This is useful typically whenever the simulation case needs to interact with some initial actors [#]_ or when two initial actors have to communicate, in both cases *before* the simulation is started.
 
 .. [#] For example requests can be used to set up the connectivity between initial actors, i.e. to specify which actor shall be aware of which, i.e. shall know its PID.
+
+
+
+How Actor Oneways Shall be Defined?
+===================================
+
+An actor oneway being a special case of a WOOPER oneway, it behaves mostly the same (ex: it is to return a state, and no result shall be expected from it) but, for clarity, it is to rely on its own type specifications and method terminators.
+
+In terms of *type specification*, an actor oneway shall use:
+
+- either, if being a const actor oneway: ``actor_oneway_return/0``
+- otherwise (non-const actor oneway): ``const_actor_oneway_return/0``
+
+
+In terms of *implementation*, similarly, each of its clauses, shall use:
+
+- either, if being a const clause: ``actor:const_return/0``
+- otherwise (non-const clause): ``actor:return_state/1``
+
+
+As an example:
+
+.. code:: erlang
+
+ % This actor oneway is not const, as not all its clauses are const:
+ -spec notifySomeEvent(wooper:state(),a_type(),other_type(),
+					   sending_actor_pid()) -> actor_oneway_return().
+ % A non-const clause to handle fire-related events:
+ notifySomeEvent(State,_FirstValue=fire_event,SecondValue,_SendingActorPid) ->
+	 [...]
+	 actor:return_state(SomeFireState);
+
+ % A const clause to handle other events (through side-effects only):
+ notifySomeEvent(State,_FirstValue,_SecondValue,_SendingActorPid) ->
+	 [...]
+	 actor:const_return_state().
+
+
+Note that we also recommend to follow the conventions used above regarding the typing of the last parameter (``sending_actor_pid()``) and the name of its (often muted) associated value (``SendingActorPid``).
+
+
+
+How to Handle Less Classical Communication Schemes?
+===================================================
+
+While oneway messages constitute a universal paradigm in order to communicate inside the simulation (hence between actors), in a case where one-to-many communication is to occur, relying on a standard actor or even a set thereof (ex: as a pool to even the load, or as for example a 3D environment split into a binary space partitioning scheme, with one actor per cell) may be suboptimal.
+
+Should the same message have to be sent from one actor to many, one may have a look to ``class_BroadcastingActor``, a specialised actor designed for that use case.
+
+Also, using the data-exchanger service (see ``class_DataExchanger``) may be of help, keeping in mind that this is a data-management service (not a specific kind of actor) that is updated between diascas.
+
+As for communication that is “pure result” (produced by an actor, but not read by any of them), data may be sent immediately out of the simulation, either directly (as fire and forget), or with some flow control (should there be a risk that the simulation overwhelms the targeted data sink).
 
 
 
@@ -428,7 +596,7 @@ This ``test_receive/0`` function performs a (blocking) selective receive, retrie
 How Should I run larger simulations?
 ====================================
 
-If, for a given simulation, more than a few nodes are needed, then various preventive measures shall be taken in order to be ready to go to further scales (typically disabling most traces_, extending key time-outs, etc.).
+If, for a given simulation, more than a few nodes are needed, then various preventive measures shall be taken in order to be ready to go to further scales (typically disabling most `simulation traces`_, extending key time-outs, etc.).
 
 For that the ``EXECUTION_TARGET`` compile-time overall flag has been defined. Its default value is ``development`` (simulations will not be really scalable, but a good troubleshooting support will be provided), but if you set it to ``production``, then all settings for larger simulations will be applied.
 
@@ -438,4 +606,4 @@ It is a compile-time option, hence it must be applied when building Sim-Diasca a
 
 to prepare for any demanding run.
 
-One may instead set ``EXECUTION_TARGET=production`` once for all, typically in ``common/GNUmakevars.inc``, however most users prefer to go back and forth between the execution target settings (as traces, shorter time-outs etc. are very useful for developing and troubleshooting), using the command-line to switch.
+One may instead set ``EXECUTION_TARGET=production`` once for all, typically in ``myriad/GNUmakevars.inc``, however most users prefer to go back and forth between the execution target settings (as traces, shorter time-outs etc. are very useful for developing and troubleshooting), using the command-line to switch.

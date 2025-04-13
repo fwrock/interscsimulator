@@ -32,7 +32,7 @@ To avoid any possible cross-talk, we have to ensure that a simulation (live or p
 
 Erlang ensures (thanks to EPMD) that, on any given host, regardless of the Erlang installations, of their version, of the UNIX users involved, no two nodes can bear the same (long) name (otherwise the second node will fail to launch).
 
-The Sim-Diasca **user node** is launched from the generic makefile infrastructure, resulting in the ``common/src/scripts/launch-erl.sh`` helper script to be run with proper parameters.
+The Sim-Diasca **user node** is launched from the generic makefile infrastructure, resulting in the ``myriad/src/scripts/launch-erl.sh`` helper script to be run with proper parameters.
 
 The name of such a user node (made a distributed node programmatically, see `Node Naming`_) will follow the following format: ``Sim-Diasca-<name of the test or case>-<user name>-<simulation instance identifier>-user-node``.
 
@@ -58,7 +58,7 @@ This information, whose shorthand is ``SII``, is a string made of alphanumerical
 
 By default the SII is automatically generated and managed by Sim-Diasca. It is based on a `UUID <https://en.wikipedia.org/wiki/Universally_unique_identifier>`_ (*Universally unique identifier*) determined at start-up [#]_. An example of a UUID is ``4f8fbacd-93d2-487d-86ff-23f75339c191``.
 
-.. [#] A UUID is obtained thanks to any system-provided ``uuidgen`` command, otherwise our own implementation is used for that (refer, in the **Common** layer, to ``basic_utils:generate_uuid/0``).
+.. [#] A UUID is obtained thanks to any system-provided ``uuidgen`` command, otherwise our own implementation is used for that (refer, in the **Myriad** layer, to ``basic_utils:generate_uuid/0``).
 
 
 As the acronym suggests, there is very little chance that two simulation instances may succeed in drawing the same UUID, so they provide an adequate guarantee of uniqueness.

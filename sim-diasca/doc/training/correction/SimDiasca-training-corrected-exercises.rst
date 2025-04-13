@@ -78,11 +78,11 @@ Exercise ex_make
 Every target should be correctly executed::
 
   > make clean all test
-	   Cleaning all in $PREFIX/common
-	   Cleaning all in $PREFIX/common/src
+	   Cleaning all in $PREFIX/myriad
+	   Cleaning all in $PREFIX/myriad/src
 	   [..]
   --> End of test for module net_utils.
-	 Building all in $PREFIX/common/doc
+	 Building all in $PREFIX/myriad/doc
 	 Testing all in doc
 
 
@@ -96,7 +96,7 @@ Exercise ex_compiler
 Output should be like::
 
  > make clean hashtable.beam
-	Cleaning all in $PREFIX/common/src
+	Cleaning all in $PREFIX/myriad/src
 	 Compiling module hashtable.erl
   `PATH=~/Software/Erlang/Erlang-current-install/bin:$PATH which erlc` -b beam -I. -I../src -v -W2 +debug_info -o hashtable.beam hashtable.erl
 
@@ -127,7 +127,7 @@ We should have::
   > make hashtable_run
 	   Compiling module hashtable_test.erl
 	   Running unitary test hashtable_run (second form) from hashtable_test hashtable.beam
-  ../src/launch-erl.sh -v -c Ceylan-common --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --
+  ../src/launch-erl.sh -v -c Ceylan-myriad --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --
 
 	+ Bucket with 1 element(s):
 	   * MyFirstKey -> MyFirstValue
@@ -139,7 +139,7 @@ Change in ``hashtable_test.erl`` ``{value,"MyFirstValue"}`` by ``{value,"AWrongV
   > make hashtable_run
 	   Compiling module hashtable_test.erl
 	   Running unitary test hashtable_run (second form) from hashtable_test hashtable.beam
-  ../src/launch-erl.sh -v -c Ceylan-common --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --
+  ../src/launch-erl.sh -v -c Ceylan-myriad --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --
   [..]
   + Bucket with 1 element(s):
 	 * MyFirstKey -> MyFirstValue
@@ -155,8 +155,8 @@ Change in ``hashtable_test.erl`` ``{value,"MyFirstValue"}`` by ``{value,"AWrongV
 Command line is::
 
    Running unitary test hashtable_run (second form) from hashtable_test hashtable.beam
-  ../src/launch-erl.sh -v -c Ceylan-common --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --eval `echo hashtable_run | sed 's|_run|_test:run()|1'`
-  Launching: erl +W w -pz  . ../src -smp auto +K true +A 8 +P 120000  -setcookie Ceylan-common -eval hashtable_test:run()  -name hashtable_run
+  ../src/launch-erl.sh -v -c Ceylan-myriad --ln ceylan_test --fqdn `hostname -f` --beam-dir . --beam-dir ../src --ln hashtable_run  --eval `echo hashtable_run | sed 's|_run|_test:run()|1'`
+  Launching: erl +W w -pz  . ../src -smp auto +K true +A 8 +P 120000  -setcookie Ceylan-myriad -eval hashtable_test:run()  -name hashtable_run
 
 Options for the ``erl`` interpreter are:
 
@@ -166,7 +166,7 @@ Options for the ``erl`` interpreter are:
  - ``+K true``: enables the kernel poll functionality if the emulator supports it
  - ``+A 8``: sets the number of threads in async thread pool to 8, valid range is 0-1024. Default is 0
  - ``+P 120000``: sets the maximum number of concurrent processes for this system. Number must be in the range 16..134217727. Default is 32768.
- - ``-setcookie Ceylan-common``: sets the magic cookie of the node to ``Ceylan-common`` (as ``common`` is a part of Ceylan that can be used without WOOPER; cookies are renamed by each upper layer)
+ - ``-setcookie Ceylan-myriad``: sets the magic cookie of the node to ``Ceylan-myriad`` (as ``myriad`` is a part of Ceylan that can be used without WOOPER; cookies are renamed by each upper layer)
  - ``-eval hashtable_test:run()``: makes init evaluate the specified expression
  - ``-name hashtable_run``: makes the Erlang runtime system into a distributed node. This flag invokes all network servers necessary for a node to become distributed.It is also ensured that epmd runs on the current host before Erlang is started. The name of the node will be hashtable_run@Host, where Host is the fully qualified host name of the current host
 
@@ -232,16 +232,16 @@ Example of result::
   > make class_PinkFlamingo_run
 
 	 Running unitary test class_PinkFlamingo_run (second form) from class_PinkFlamingo_test class_PinkFlamingo.beam
-	 ../../common/src/launch-erl.sh -v -c WOOPER --ln wooper_test --fqdn `hostname -f` --beam-dir ../src --beam-dir . --beam-dir ../../common/src --ln class_PinkFlamingo_run  --eval `echo class_PinkFlamingo_run | sed 's|_run|_test:run()|1'`
-	 Launching: erl +W w -pz  ../src . ../../common/src -smp auto +K true +A 8 +P 120000  -setcookie WOOPER -eval class_PinkFlamingo_test:run()  -name class_PinkFlamingo_run
+	 ../../myriad/src/launch-erl.sh -v -c WOOPER --ln wooper_test --fqdn `hostname -f` --beam-dir ../src --beam-dir . --beam-dir ../../myriad/src --ln class_PinkFlamingo_run  --eval `echo class_PinkFlamingo_run | sed 's|_run|_test:run()|1'`
+	 Launching: erl +W w -pz  ../src . ../../myriad/src -smp auto +K true +A 8 +P 120000  -setcookie WOOPER -eval class_PinkFlamingo_test:run()  -name class_PinkFlamingo_run
 	 Erlang R16B (erts-5.10.1) [source] [rq:1] [async-threads:8] [hipe] [kernel-poll:true]
 
 	 Eshell V5.10.1  (abort with ^G)
 	 (class_PinkFlamingo_run@localhost.localdomain)1> --> Testing module class_PinkFlamingo.
 	 --> Debug mode: true.
 	 --> Statically, class name is class_PinkFlamingo, superclasses are [class_ViviparousBeing].
-	 --> After constructor, get_class_name returned 'class_PinkFlamingo' as expected.
-	 --> After constructor, get_superclasses returned [class_ViviparousBeing] as expected.
+	 --> After constructor, getClassname returned 'class_PinkFlamingo' as expected.
+	 --> After constructor, getSuperclasses returned [class_ViviparousBeing] as expected.
 	 --> On average a flamingo has 1.700000 children.
 	 [Syd] Glouglou, gouglou, my height is now 122.500000 cm.
 	 [Syd] Glouglou, gouglou, my height is now 125.000000 cm.

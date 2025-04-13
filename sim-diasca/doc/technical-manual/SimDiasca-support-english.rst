@@ -6,13 +6,13 @@ Sim-Diasca Support
 
 It is not required to apply any meaningless procedure or know any code word to get some support:
 
-:raw-html:`<img src="xkcd-tech_support.png"></img>`
+:raw-html:`<center><img src="xkcd-tech_support.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-tech_support.png}`
 
 
 No need either for a specific support registration form:
 
-:raw-html:`<img src="xkcd-a_new_captcha_approach.png"></img>`
+:raw-html:`<center><img src="xkcd-a_new_captcha_approach.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-a_new_captcha_approach.png}`
 
 
@@ -20,7 +20,7 @@ Just be sure to have read beforehand the `Sim-Diasca Troubleshooting`_ section.
 
 Of course, if ever changes were made to the Sim-Diasca codebase, testing also against a vanilla (pristine) release may help discriminating among the many possible causes:
 
-:raw-html:`<img src="xkcd-appliance_repair.png"></img>`
+:raw-html:`<center><img src="xkcd-appliance_repair.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.65]{xkcd-appliance_repair.png}`
 
 

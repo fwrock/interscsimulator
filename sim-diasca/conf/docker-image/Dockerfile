@@ -18,7 +18,7 @@ RUN apt-get update &&\
 
 
 # Install erlang:
-COPY common/conf/install-erlang.sh /tmp/install-erlang.sh
+COPY myriad/conf/install-erlang.sh /tmp/install-erlang.sh
 RUN mkdir -p /opt/Software/Erlang;\
 	cd /opt/Software/Erlang; \
 	sudo /tmp/install-erlang.sh --doc-install /opt/Software; \

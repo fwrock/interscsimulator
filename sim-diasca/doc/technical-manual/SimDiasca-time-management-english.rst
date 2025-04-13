@@ -5,7 +5,7 @@
 Sim-Diasca Time Management Explained
 ------------------------------------
 
-:raw-html:`<img src="xkcd-time_management.png"></img>`
+:raw-html:`<center><img src="xkcd-time_management.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-time_management.png}`
 
 
@@ -43,7 +43,7 @@ In the context of a distributed simulation, should no special mechanism be used,
 
 As the minimal example below [#]_ shows, a simulation cannot work correctly as such:
 
-:raw-html:`<img src="causality-issues-english.png"></img>`
+:raw-html:`<center><img src="causality-issues-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{causality-issues-english.png}`
 
 .. [#] The military setting is due to the fact their simulations have been ahead of civil ones for long.
@@ -63,12 +63,12 @@ The problem lies in the point of view of actor #3. Indeed in that case the obser
 
 This situation makes absolutely no sense for this actor #3. At best, the model of the observer should detect the inconsistency and stop the simulation. At worse, the actor received incorrect inputs, and in turn injected incorrect outputs in a simulation that should not be trusted anymore.
 
-:raw-html:`<img src="xkcd-protocol.png"></img>`
+:raw-html:`<center><img src="xkcd-protocol.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-protocol.png}`
 
 The root of the problem is that here there is no guarantee that received messages will respect their timely constraints - whereas (at least in synchronous approaches) no return to the past shall be considered, however tempting.
 
-:raw-html:`<img src="xkcd-the_past.png"></img>`
+:raw-html:`<center><img src="xkcd-the_past.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-the_past.png}`
 
 
@@ -78,14 +78,14 @@ This faulty behaviour would be all the more unfortunate that the incorrect outpu
 Maintaining Reproducibility
 ---------------------------
 
-:raw-html:`<img src="xkcd-the_difference.png"></img>`
+:raw-html:`<center><img src="xkcd-the_difference.png"></img></center>`
 :raw-latex:`\includegraphics[scale=4.5]{xkcd-the_difference.png}`
 
 Let's suppose for now we somehow managed to preserve causality. This does not imply that reproducibility is ensured.
 
 Using the same example where actor #1 launches a rocket (sending the M1 message), actor #3 can in the meantime develop its own behaviour, which may imply this observer detected the tank. This can lead the observer notifying the tank, thus to its sending the M3 message.
 
-:raw-html:`<img src="reproducibility-issues-english.png"></img>`
+:raw-html:`<center><img src="reproducibility-issues-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.65]{reproducibility-issues-english.png}`
 
 The point here is that there is no direct nor causal relationship between M1 and M3. These are truly concurrent events, they may actually happen in any order. Therefore concurrent events are not expected to be reordered by the mechanism used to maintain causality, since situations A and B are equally correct.
@@ -114,7 +114,7 @@ However the simulator should offer the possibility to go beyond this mechanism, 
 The best solution we know here is, in a time-stepped context, to let the reproducibility mechanism activated, but, in addition to the sorting into an arbitrary order, to perform then an uniform random shuffle: then we are able not only to recreate *all* licit combinations of events during a given simulation tick at the level of each actor, but also to ensure that all these combinations have *exactly* the same probability of showing up.
 
 
-:raw-html:`<img src="ergodicity-issues-english.png"></img>`
+:raw-html:`<center><img src="ergodicity-issues-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{ergodicity-issues-english.png}`
 
 
@@ -224,7 +224,7 @@ General Principles
 ------------------
 
 
-:raw-html:`<img src="xkcd-debugger.png"></img>`
+:raw-html:`<center><img src="xkcd-debugger.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-debugger.png}`
 
 
@@ -294,14 +294,14 @@ In batch mode, the simulation will run as fast as possible, whereas in interacti
 
 Not depending on the operating mode, when started the ``Time Manager`` will always follow the same algorithm, shown below:
 
-:raw-html:`<img src="tick-timescale-english.png"></img>`
+:raw-html:`<center><img src="tick-timescale-english.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{tick-timescale-english.png}`
 
 At the beginning of a new tick, the ``Time Manager`` will notify all subscribed simulation actors that a new tick began, thanks to a ``top`` message.
 
 Each actor will then process all the actor messages it received during the last tick, reordered appropriately, as explained in the `Maintaining Causality`_ and `Maintaining Reproducibility`_ sections. This deferred message processing ensures the simulation time always progresses forward, which is a property that simplifies considerably the time management.
 
-:raw-html:`<img src="xkcd-time_machines.png"></img>`
+:raw-html:`<center><img src="xkcd-time_machines.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.4]{xkcd-time_machines.png}`
 
 Processing these actor messages may imply state changes in that actor and/or the sending of actor messages to other actors.
@@ -348,7 +348,7 @@ The simulation time is discretised into fundamental time steps (``ticks``, which
 
 From the user-specified simulation start date (ex: ``Monday, March 10, 2014 at 3:15:36 PM``), a simulation initial tick ``Tinitial`` is defined (ex: ``Tinitial = 6311390400000``).
 
-:raw-html:`<img src="xkcd-unique_date.png"></img>`
+:raw-html:`<center><img src="xkcd-unique_date.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-unique_date.png}`
 
 
@@ -545,7 +545,7 @@ For the scenario test case to be able to run a simulation on a set of computing 
 
 To do so, a SSH connection is established and the appropriate daemon is run. The recommended set-up is to be able to run a password-less connection to the computing nodes. This involves the prior dispatching of a private key is these nodes, and the use of the corresponding public key by the user host.
 
-See `Enabling The Distributed Mode Of Operation`_ for the corresponding technical procedure.
+See, in the ``Sim-Diasca Installation Guide``, the ``Enabling The Distributed Mode Of Operation`` section for the corresponding technical procedure.
 
 
 
@@ -717,7 +717,7 @@ One of these time managers is selected (by the deployment manager) as the root t
 
 Other kinds of trees could be chosen: they might be unbalanced, have a different heights (ex: to account for multiple clusters/processors/cores), etc., as shown in the physical diagram below:
 
-:raw-html:`<img src=SimDiasca-physical-dispatching-english.png></img>`
+:raw-html:`<center><img src=SimDiasca-physical-dispatching-english.png></img></center>`
 :raw-latex:`\includegraphics[scale=0.24]{SimDiasca-physical-dispatching-english.png}`
 
 
@@ -732,13 +732,13 @@ Two protocols are involved in terms of scheduling exchanges, as shown in the log
 - another for lower-level actor scheduling, between a local time manager and the actors it drives
 
 
-:raw-html:`<img src=SimDiasca-logical-dispatching-english.png></img>`
+:raw-html:`<center><img src=SimDiasca-logical-dispatching-english.png></img></center>`
 :raw-latex:`\includegraphics[scale=0.32]{SimDiasca-logical-dispatching-english.png}`
 
 
 .. comment To be updated:
   A corresponding sequence diagram can be the following:
-  :raw-html:`<img src=SimDiasca-placement-scheduling-sequence.png></img>`
+  :raw-html:`<center><img src=SimDiasca-placement-scheduling-sequence.png></img></center>`
   :raw-latex:`\includegraphics[scale=0.27]{SimDiasca-placement-scheduling-sequence.png}`
 
 

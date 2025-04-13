@@ -58,7 +58,9 @@ How to Create Initial Instances Programmatically
 
 This is the easiest, yet most limited, approach. No external identifier needs to be involved here.
 
-If wanting to create two instances that have to know each other, one may use, possibly directly from the simulation case::
+If wanting to create two instances that have to know each other, one may use, possibly directly from the simulation case:
+
+.. code:: erlang
 
  A = class_Actor:create_initial_actor( class_Foo, [ Xa, Ya ] ),
  B = class_Actor:create_initial_actor( class_Bar, [ Xb, Yb, Zb ],

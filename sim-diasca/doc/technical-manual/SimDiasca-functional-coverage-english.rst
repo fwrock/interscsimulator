@@ -142,7 +142,7 @@ The Sim-Diasca functional coverage increased over time, first to support a bette
 
 Although we cannot guarantee that they will be fulfilled, we are always interested into requests for enhancement, provided they are reasonable:
 
-:raw-html:`<img src="xkcd-spinal_tap_amps.png"></img>`
+:raw-html:`<center><img src="xkcd-spinal_tap_amps.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.55]{xkcd-spinal_tap_amps.png}`
 
 

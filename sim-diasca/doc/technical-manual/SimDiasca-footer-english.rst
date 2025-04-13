@@ -6,7 +6,7 @@ What To Do Next?
 
 Congratulations, you reached the end of this technical guide!
 
-:raw-html:`<img src="xkcd-anti_mind_virus.png"></img>`
+:raw-html:`<center><img src="xkcd-anti_mind_virus.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.9]{xkcd-anti_mind_virus.png}`
 
 

@@ -36,5 +36,5 @@ For a curve,  identified processings of interest are:
  - change scale (ex: switch to logarithmic, reshape to fit into a ``0..1`` interval, etc.)
 
 
-:raw-html:`<img src="xkcd-log_scale.png"></img>`
+:raw-html:`<center><img src="xkcd-log_scale.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-log_scale.png}`

@@ -33,7 +33,7 @@ In our context, the goal was to be able to perform virtual experiments on a syst
 Indeed, the main purpose for such a simulator is generally to allow for a harmless test of a system:
 
 
-:raw-html:`<img src="xkcd-los_alamos.png"></img>`
+:raw-html:`<center><img src="xkcd-los_alamos.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{xkcd-los_alamos.png}` [#]_
 
 
@@ -189,7 +189,7 @@ The devil is in the details in terms of tool selection as well. So even two disc
 
 ..
   disabled, as not fully SFW::
-  raw-html:`<img src="xkcd-compare_and_contrast.png"></img>`
+  raw-html:`<center><img src="xkcd-compare_and_contrast.png"></img></center>`
   raw-latex:`\includegraphics[scale=0.6]{xkcd-compare_and_contrast.png}`
 
 

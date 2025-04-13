@@ -6,14 +6,12 @@ Sim-Diasca Building Blocks
 --------------------------
 
 
-.. _traces:
 .. _simulation traces:
 
 
 
 Simulation Traces
 =================
-
 
 
 Principles
@@ -23,13 +21,16 @@ Traces (a.k.a. simulation logs) are a way of recording for later use any event o
 
 Traces are not simulation results per se, their purpose is to make the technical troubleshooting easier, notably to help developing and debugging models.
 
-Trace facilities are gathered in a separate layer, the ``Traces`` one (in the ``traces`` directory), which is used notably by Sim-Diasca. The ``Traces`` service depends only on ``WOOPER`` and on ``Common``.
+Trace facilities are gathered in a separate layer, the ``Traces`` one (in the ``traces`` directory), which is used notably by Sim-Diasca. The ``Traces`` service depends only on ``WOOPER`` and on ``Myriad``.
 
 Please refer to the *Sim-Diasca Developer Guide* for information about the actual (practical) use of traces.
 
 Defining a trace format allows to uncouple the execution of a simulation from the interpretation of what happened during its course of action (we can either monitor the simulation "live", or study it "post-mortem", i.e. after its termination).
 
 If moreover the format is designed to be "universal" (in the context of discrete-time simulations), in order to be independent from a particular domain and from any trace generator or supervisor, then the post-processing toolchain of traces might be shared between several simulators.
+
+
+See also: the documentation of the ``Traces`` layer, in ``Ceylan-Traces-Layer-technical-manual-english.pdf``.
 
 
 
@@ -73,12 +74,12 @@ Trace Channels
 
 There are six built-in trace channels, of increasing importance:
 
- - ``debug``
- - ``trace``
- - ``info``
- - ``warning``
- - ``error``
- - ``fatal``
+- ``debug``
+- ``trace``
+- ``info``
+- ``warning``
+- ``error``
+- ``fatal``
 
 Depending on the nature of its message, a trace emitter can select in which channel its current trace should be output.
 
@@ -87,9 +88,19 @@ The three most critical trace channels (``warning``, ``error`` and ``fatal``) wi
 
 Depending on the needs of the simulation user, various types of trace outputs can be selected:
 
- - traces integrated to an interactive graphical tool (LogMX)
- - traces in raw text (to be browsed thanks to any text editor)
- - PDF traces (any PDF viewer can then be used)
+- traces integrated to an interactive graphical tool (LogMX)
+- traces in raw text (to be browsed thanks to any text editor)
+- PDF traces (any PDF viewer can then be used)
+
+The type of traces is by default based on LogMX.
+
+This can be changed (``TraceType`` being then either ``log_mx_traces`` or ``{text_traces,T}`` where ``T`` is either ``text_only`` or ``pdf``):
+
+- one time for all, by editing the ``TraceType`` define in ``traces/src/traces.hrl`` (and then rebuilding all)
+- on a per-case basis, still at compilation-time, by using the ``?case_start(TraceType)`` macro (ex: see ``soda_stochastic_integration_test.erl``)
+- at runtime, by specifying the ``--trace-type TraceSpecType`` command-line option, where ``TraceSpecType`` is ``logmx``, ``text`` or ``pdf``, like in::
+
+  $ make foobar_run CMD_LINE_OPT="--trace-type text --batch"
 
 
 
@@ -100,7 +111,7 @@ Traces For LogMX
 
 The resulting interface when browsing the traces (written in a ``*.traces`` file) with default aggregator output corresponds to:
 
-:raw-html:`<img src="logmx-interface.png"></img>`
+:raw-html:`<center><img src="logmx-interface.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{logmx-interface.png}`
 
 
@@ -138,7 +149,7 @@ As a result, simulation traces output in the aforementioned trace file will be i
 
 By default ``gedit`` will be automatically triggered as a trace supervisor, and the user will be requested by the editor to reload that document as newer traces are appended.
 
-If wanting to use another text viewer, just update accordingly the ``executable_utils:get_default_wide_text_viewer/1`` function in the ``Common`` package (in ``common/src/utils/executable_utils.erl``): ``gedit`` might be replaced for example by ``nedit`` or by ``xemacs``.
+If wanting to use another text viewer, just update accordingly the ``executable_utils:get_default_wide_text_viewer/1`` function in the ``Myriad`` package (in ``myriad/src/utils/executable_utils.erl``): ``gedit`` might be replaced for example by ``nedit`` or by ``xemacs``.
 
 Note that only the most interesting trace fields are kept here (a well-chosen subset of the full, actual ones), for the sake of readability.
 
@@ -164,7 +175,7 @@ In the future, we could imagine an enhancement that would allow to convert a tra
 
 However, as simulations are expected to be totally reproducible, it would just a matter of saving some runtime, so the priority of this enhancement is low.
 
-If wanting to use another PDF reader than ``evince``, just update accordingly the ``executable_utils:get_default_pdf_viewer/0`` function in the ``Common`` package (in ``common/src/utils/executable_utils.erl``): ``evince`` might be replaced for example by ``mupdf``, otherwise by ``acroread`` or ``xpdf``.
+If wanting to use another PDF reader than ``evince``, just update accordingly the ``executable_utils:get_default_pdf_viewer/0`` function in the ``Myriad`` package (in ``myriad/src/utils/executable_utils.erl``): ``evince`` might be replaced for example by ``mupdf``, otherwise by ``acroread`` or ``xpdf``.
 
 Then recompiling this module should be enough.
 
@@ -207,7 +218,7 @@ Generic Probe
 
 A generic probe can be dynamically configured to gather any number of time series, and represent them with as many curves whose abscissa axis corresponds to the simulation time, like in:
 
-:raw-html:`<img src="xkcd-stove_ownership.png"></img>`
+:raw-html:`<center><img src="xkcd-stove_ownership.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-stove_ownership.png}`
 
 
@@ -215,7 +226,7 @@ Samples *must* be sent to the probe in chronological order (indeed, depending on
 
 An example of the output rendering is:
 
-:raw-html:`<img src="Generic_probe_example.png"></img>`
+:raw-html:`<center><img src="Generic_probe_example.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{Generic_probe_example.png}`
 
 The generic probe is defined in ``class_Probe.erl``, and tested in ``probe_rendering_test.erl`` (unit rendering test) and ``class_Probe_test.erl`` (integration test).
@@ -239,7 +250,7 @@ Partial samples can be sent as well, when no data is available for a given curve
 
 Finally, probes used to support the generation of histograms like this one:
 
-:raw-html:`<img src="xkcd-11th_grade.png"></img>`
+:raw-html:`<center><img src="xkcd-11th_grade.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-11th_grade.png}`
 
 However this feature is currently deprecated, as synthetic indicators should preferably be generated in a later separated post-processing stage.
@@ -258,7 +269,7 @@ Reliability Probes
 
 Once associated with an equipment, a reliability probe, still based on a time series, records at each simulation tick the status of this equipment (functional or in failure), and can generate the chronology of status changes as shown here:
 
-:raw-html:`<img src="Reliability_probe_example.png"></img>`
+:raw-html:`<center><img src="Reliability_probe_example.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{Reliability_probe_example.png}`
 
 The reliability probe is defined in ``class_ReliabilityProbe.hrl``, and tested in ``class_ReliabilityProbe.erl``.
@@ -318,7 +329,7 @@ Probe Report Display Issues
 
 Depending on the tool you use for image displaying, multiple graphs may be displayed in the same window: with the default one, *Geeqie* (``geeqie``, previously known as ``gqview``), one window may pop up, listing all the graphical results.
 
-If wanting to use another image viewer, you can just edit the ``common/src/executable_utils.erl`` file, and update accordingly the ``get_default_image_browser/1`` function.
+If wanting to use another image viewer, you can just edit the ``myriad/src/executable_utils.erl`` file, and update accordingly the ``get_default_image_browser/1`` function.
 
 
 
@@ -349,7 +360,7 @@ The data-logger is defined in the ``sim-diasca/src/core/src/data-management/data
 
 When running for example the data-logger test (``datalogging_test.erl``, thanks to ``make datalogging_run``), one can see:
 
-:raw-html:`<img src="datalogger-example.png"></img>`
+:raw-html:`<center><img src="datalogger-example.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.5]{datalogger-example.png}`
 
 In the stacking of windows, from the upper one to the lower one we can see:
@@ -455,18 +466,18 @@ To switch from one console line per second to all lines being displayed, just ed
 Data Exchanger
 ==============
 
-The *Data Exchanger* is a distributed simulation service which allows to share conveniently and efficiently data among all actors, even if the data sets are large and the actors numerous.
+The *Data Exchanger* is a distributed simulation service that allows to share conveniently and efficiently data among all actors, even if the data sets are large and the actors numerous.
 
 
 
 Objectives
 ----------
 
-More precisely, the data-exchanger has two technical purposes:
+More precisely, the data-exchanger fulfills two technical purposes:
 
- - to allow for a more efficient, yet safe, sharing of data, based on an automatic distribution which allows all read requests (potentially very numerous) to be performed locally only (i.e. directly on the computing node on which each reading actor is running, thus with very low overhead)
+- to allow for a more efficient, yet safe, sharing of data, based on an automatic distribution that allows all read requests (potentially very numerous) to be performed locally only (i.e. directly on the computing node on which each reading actor is running - thus with very low overhead)
 
- - to provide a way of propagating data conveniently and as quickly as possible in simulation time, latency-wise: an update made at tick T will be visible to all readers during the full T+1 tick, right from its start, and thus can then be accessed with zero-latency, through any number of direct reading messages per actor (without having to be synchronized thanks to actor messages that would be reordered and executed later); actor-wise, this allows to perform series of any number of (potentially conditional) read requests during the same tick, with potentially arbitrarily complex read patterns, at virtually no performance cost nor developing effort
+- to provide a way of propagating data conveniently and as quickly as possible in simulation time, latency-wise: an update made at tick T will be visible to all readers during the full T+1 tick, right from its start, and thus can then be accessed with zero-latency, through any number of direct reading messages per actor (without having to be synchronized thanks to actor messages that would be reordered and executed later); actor-wise, this allows to perform series of any number of (potentially conditional) read requests during the same tick, with potentially arbitrarily complex read patterns, at virtually no performance cost nor developing effort
 
 
 Each data that is shared according to following conventions:
@@ -494,7 +505,7 @@ Sharing Constant Data
 One of the notable use cases of the data exchange service is the sharing of simulation-specific configuration settings: then all actors can have access to the same static (``const``) data sets, which will be available from the start, before the simulation is started, even before the first initial actor is created. It is then functionally equivalent to having each actor read these information from a common configuration file, except that the reading is done once for all actors on each node, instead of once per actor, avoiding the massive reading and parsing, etc. that would be incurred otherwise.
 
 
-:raw-html:`<img src="xkcd-x11.png"></img>`
+:raw-html:`<center><img src="xkcd-x11.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.8]{xkcd-x11.png}`
 
 

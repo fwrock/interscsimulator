@@ -14,7 +14,7 @@ The overall goal is to obtain, from known facts and thanks the simulations, new 
 
 Indeed, in the same way as one may rely on a (hopefully validated_) oracle or a gyroscope, the outcome of a simulation cannot be really precisely foreseen (otherwise it would be plain useless):
 
-:raw-html:`<img src="xkcd-gyroscopes.png"></img>`
+:raw-html:`<center><img src="xkcd-gyroscopes.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.45]{xkcd-gyroscopes.png}`
 
 
@@ -84,7 +84,7 @@ Patterns are to be expressed according to the *Perl Compatible Regular Expressio
 
 For more information on the pattern format, see following `cheat sheet <http://www.bitcetera.com/page_attachments/0000/0030/regex_in_a_nutshell.pdf>`_ and the `re module <http://erlang.org/doc/man/re.html>`_.
 
-:raw-html:`<img src="xkcd-perl_problems.png"></img>`
+:raw-html:`<center><img src="xkcd-perl_problems.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-perl_problems.png}`
 
 
@@ -146,7 +146,7 @@ Identifying Reasons For Observed Phenomena
 
 Finding actual causes is seldom straightforward:
 
-:raw-html:`<img src="xkcd-correlation.png"></img>`
+:raw-html:`<center><img src="xkcd-correlation.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.8]{xkcd-correlation.png}`
 
 
@@ -156,7 +156,7 @@ Having Reasonable Expectations
 
 A simulation is not the silver bullet that will ask the right questions on the user's behalf and answer them with infinite accuracy:
 
-:raw-html:`<img src="xkcd-science_montage.png"></img>`
+:raw-html:`<center><img src="xkcd-science_montage.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-science_montage.png}`
 
 Simulation being a rather expensive and time-consuming mode of evaluation, it should be used on carefully selected cases that cannot be solved satisfactorily thanks to other methods, like comparison with actual systems, expert assessments, coarse spreadsheet-based studies, etc.
@@ -174,13 +174,13 @@ This is why the scalability of a simulation engine is a key property: whenever s
 
 Indeed extrapolating becomes too often a wild guess:
 
-:raw-html:`<img src="xkcd-extrapolating.png"></img>`
+:raw-html:`<center><img src="xkcd-extrapolating.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-extrapolating.png}`
 
 
 In most cases, approaches based on extrapolations are hardly sustainable:
 
-:raw-html:`<img src="xkcd-sustainable.png"></img>`
+:raw-html:`<center><img src="xkcd-sustainable.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.45]{xkcd-sustainable.png}`
 
 
@@ -190,13 +190,13 @@ Sharing the Findings With the Intended Audience
 
 The lessons learned thanks to the simulation must be synthesised appropriately, with proper wording for the targeted public, so that the conclusions are sufficiently emphasized to be well-understood:
 
-:raw-html:`<img src="xkcd-simple.png"></img>`
+:raw-html:`<center><img src="xkcd-simple.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.7]{xkcd-simple.png}`
 
 
 Concerns must be correctly shared among the people involved, with appropriate common metrics and goals:
 
-:raw-html:`<img src="xkcd-car_problems.png"></img>`
+:raw-html:`<center><img src="xkcd-car_problems.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.55]{xkcd-car_problems.png}`
 
 
@@ -206,5 +206,5 @@ Making Good Use of the New Knowledge
 
 It is certainly out of the scope of this document, but simulations may generate new knowledge, which must be carefully leveraged, lest it worsens the situation:
 
-:raw-html:`<img src="xkcd-conditional_risk.png"></img>`
+:raw-html:`<center><img src="xkcd-conditional_risk.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.8]{xkcd-conditional_risk.png}`

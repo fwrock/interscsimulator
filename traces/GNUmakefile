@@ -4,18 +4,13 @@ TRACES_TOP = .
 .PHONY: help help-intro help-traces                                   \
 		all register-version-in-header register-traces list-beam-dirs \
 		add-prerequisite-plts link-plt                                \
-		info-traces
+		stats info-traces info-compile info-conditionals info-deps
 
 
-MODULES_DIRS = src doc #conf
+MODULES_DIRS = src doc conf test examples
 
 # To override the 'all' default target with a parallel version:
 BASE_MAKEFILE = true
-
-
-# No trace supervisor or graphical output wanted when running all tests from a
-# root directory (batch mode vs interactive one):
-CMD_LINE_OPT = "--batch"
 
 
 
@@ -52,11 +47,30 @@ add-prerequisite-plts: link-plt
 
 # As upper layers may rely on the 'traces' naming:
 link-plt:
-	@/bin/ln -s $(PLT_FILE) $(TRACES_PLT_FILE)
+	@if [ ! "$(PLT_FILE)" = "$(TRACES_PLT_FILE)" ]; then /bin/ln -s --force $(PLT_FILE) $(TRACES_PLT_FILE) ; fi
+
+
+stats:
+	@$(MAKE_CODE_STATS) $(TRACES_TOP)
 
 
 info-traces:
 	@echo "ENABLE_TRACE_OPT = $(ENABLE_TRACE_OPT)"
+
+
+info-compile:
+	@echo "ERLANG_COMPILER_OPT_FOR_STANDARD_MODULES = $(ERLANG_COMPILER_OPT_FOR_STANDARD_MODULES)"
+	@echo "COMPILER_OPT_FOR_WOOPER_CLASSES = $(COMPILER_OPT_FOR_WOOPER_CLASSES)"
+
+
+info-conditionals:
+	@echo "TRACES_DEBUG_FLAGS = $(TRACES_DEBUG_FLAGS)"
+	@echo "TRACES_CHECK_FLAGS = $(TRACES_CHECK_FLAGS)"
+
+
+info-deps:
+	@echo "MYRIAD_TOP = $(MYRIAD_TOP) (i.e. $$(realpath $(MYRIAD_TOP)))"
+	@echo "WOOPER_TOP = $(WOOPER_TOP)) (i.e. $$(realpath $(WOOPER_TOP)))"
 
 
 include $(TRACES_TOP)/GNUmakesettings.inc

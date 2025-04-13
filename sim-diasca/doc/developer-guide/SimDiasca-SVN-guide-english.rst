@@ -93,7 +93,7 @@ If wanting then to restore the previous state of the working copy, a recursive r
 
 Although all branches are managed identically by SVN, the following usual conventions are to be respected:
 
- - all vendor branches should be created in the top-level ``vendor`` directory (ex: ``vendor/common/0.1``)
+ - all vendor branches should be created in the top-level ``vendor`` directory (ex: ``vendor/myriad/0.1``)
 
  - all other branches should be created in the top-level ``branches`` directory (ex: ``branches/sim-diasca-2.0``)
 

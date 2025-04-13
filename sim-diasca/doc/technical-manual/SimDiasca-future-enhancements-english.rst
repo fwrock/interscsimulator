@@ -8,7 +8,7 @@ Sim-Diasca Future Enhancements
 ------------------------------
 
 
-:raw-html:`<img src="xkcd-researcher_translation.png"></img>`
+:raw-html:`<center><img src="xkcd-researcher_translation.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-researcher_translation.png}`
 
 
@@ -327,11 +327,11 @@ An example of such interaction could be:
 	% managers as there are available nodes.
 
 	% Replaces class_PLCNetwork:remote_new_link(MyHost,35,4,rural):
-	BalancerPid ! {instanciate_link,[class_PLCNetwork,[35,4,rural]],self()},
+	BalancerPid ! {instantiate_link,[class_PLCNetwork,[35,4,rural]],self()},
 
 	PLCNetworkPid = receive
 
-		{wooper_result,{instanciated,Pid,_Computer}} ->
+		{wooper_result,{instantiated,Pid,_Computer}} ->
 			Pid
 
 	end,
@@ -360,7 +360,7 @@ On a side note, once the user code is able to rely on a load balancer, it will n
 
 Therefore one can start with a very basic load balancer (like a round-robin based one), knowing that the integration of a more advanced ones (say, a dynamic one using advanced heuristics) should not imply any model to be modified.
 
-Another interesting feature would be to have a load balancer which would take into account the tightness of the coupling between a set of actors. Then, the more actors would interact, the stronger the tendency to instanciate them on the same node would be.
+Another interesting feature would be to have a load balancer which would take into account the tightness of the coupling between a set of actors. Then, the more actors would interact, the stronger the tendency to instantiate them on the same node would be.
 
 If such a guessing about coupling intensity seems difficult to achieve for a load balancer, the simulation user could hint it, for example by designating a group by an atom and specifying that atom at each creation of one of its member. Then the load balancer would just have to try to place all actors bearing that atom on the same node, whatever it is.
 
@@ -452,7 +452,7 @@ Many actions could - and will - be taken to further enhance the performances of 
 
 We will ensure first that developing each of these enhancements is worth the time:
 
-:raw-html:`<img src="xkcd-is_it_worth_the_time.png"></img>`
+:raw-html:`<center><img src="xkcd-is_it_worth_the_time.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-is_it_worth_the_time.png}`
 
 
@@ -462,7 +462,7 @@ Upstream Works
 
 There is a number of more advanced topics that we hope to tackle in the next months and years.
 
-:raw-html:`<img src="xkcd-einstein.png"></img>`
+:raw-html:`<center><img src="xkcd-einstein.png"></img></center>`
 :raw-latex:`\includegraphics[scale=0.6]{xkcd-einstein.png}`
 
 Among them, there is:

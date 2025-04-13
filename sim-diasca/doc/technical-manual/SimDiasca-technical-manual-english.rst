@@ -1,20 +1,9 @@
-======================================================
-Technical Manual of the `Sim-Diasca` Simulation Engine
-======================================================
+========================================================
+Technical Manual of the **Sim-Diasca** Simulation Engine
+========================================================
 
 
-.. comment User/Developer Guide is another document now.
-
-
-+------------------------------------------+--------------------------------------+
-| .. image:: sim-diasca.png                                                       |
-|   :scale: 40                                                                    |
-|   :align: center                                                                |
-+==========================================+======================================+
-| .. image:: logo-EDF-english.png          | .. image:: lgpl-v3-logo-bordered.png |
-|   :scale: 50                             |   :align: right                      |
-|   :align: left                           |                                      |
-+------------------------------------------+--------------------------------------+
+.. comment the Installation and User/Developer Guides are other documents now.
 
 
 .. role:: raw-html(raw)
@@ -24,21 +13,35 @@ Technical Manual of the `Sim-Diasca` Simulation Engine
    :format: latex
 
 
-:Organisation: Copyright (C) 2008-2017 EDF R&D
+.. Unable to have proper table formatting without specialising:
+
+
+.. Scale does not seem taken into account:
+:raw-html:`<center><table><tr colspan="2"><center><img src="sim-diasca.png" style="width:500px"></tr><tr><td><center><img src="logo-EDF-english.png" style="width:150px"></td><td><center><img src="lgpl-v3-logo-bordered.png" style="width:140px"></td></tr></table>`
+
+
+:raw-latex:`\begin{center} \begin{tabular}{c c c} \multicolumn{2}{c}{\includegraphics[scale=0.3]{sim-diasca.png}} \\  \includegraphics[scale=0.4]{logo-EDF-english.png} & \includegraphics[scale=0.8]{lgpl-v3-logo-bordered.png} \\ \end{tabular} \end{center}`
+
+
+
+:Organisation: Copyright (C) 2008-2021 EDF R&D
 :Author: Olivier Boudeville
 :Contact: olivier.boudeville@edf.fr
-:Lastly Updated on: Thursday, August 17, 2017
-:Creation Date: February 2010
+:Lastly updated: Friday, February 19, 2021
+:Creation date: Monday, February 8, 2010
 :Status: Work in progress
-:Version: 0.9.11
+:Version: 0.9.25
+:Website: `http://sim-diasca.com <http://sim-diasca.com>`_
 :Dedication:
 
 	For people interested in the inner workings of the `Sim-Diasca` simulation engine.
+
 :Abstract:
 
-The main design choices of the simulation engine are discussed here, from the requirements to the implementation, including the software architecture and the algorithmic approach. Its recommended use is also described.
+	The main design choices of the simulation engine are discussed here, from the requirements to the implementation, including the software architecture and the algorithmic approach. Its recommended use is also described.
 
 
+:raw-html:`</center>`
 
 
 .. meta::
@@ -130,7 +133,7 @@ Select your test case: ``cd sim-diasca/src/core/src/scheduling/tests/``, for exa
 
 Optionally, if you want to run a *distributed* simulation, create in the current directory a file named ``sim-diasca-host-candidates.txt`` which lists the computing hosts you want to take part to the simulation, with one entry by line, like (do not forget the final dot on each line)::
 
-  { 'hurricane.example.org', "Computer of John (this is free text)." }.
+  {'hurricane.foobar.org', "Computer of John (this is free text)."}.
 
 Then run the test case::
 
@@ -138,7 +141,7 @@ Then run the test case::
 
 The ``CMD_LINE_OPT="--batch"`` option was added as, for the sake of this quick-start, the trace supervisor is not expected to have already been installed.
 
-For the more in-depth reference installation instructions, refer to the `Sim-Diasca Installation Guide`_ section.
+For the more in-depth reference installation instructions, refer to the ``Sim-Diasca Installation Guide``.
 
 
 
@@ -146,9 +149,9 @@ For the more in-depth reference installation instructions, refer to the `Sim-Dia
 How to Read This Manual
 -----------------------
 
-.. image:: xkcd-manuals.png
-   :scale: 75
-   :align: center
+:raw-html:`<center><center><img src=xkcd-manuals.png></img></center>`
+:raw-latex:`\includegraphics[scale=0.75]{xkcd-manuals.png}`
+
 
 .. include:: SimDiasca-ontology-english.rst
 
@@ -189,7 +192,8 @@ How to Read This Manual
 
 .. include:: SimDiasca-simulation-validation-english.rst
 
-.. include:: SimDiasca-installation-instructions-english.rst
+.. Moved to a separate document:
+  .. include:: SimDiasca-installation-instructions-english.rst
 
 .. include:: SimDiasca-cheat-sheet-english.rst
 
