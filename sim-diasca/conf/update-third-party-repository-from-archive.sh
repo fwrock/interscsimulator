@@ -3,11 +3,11 @@
 
 USAGE="
 
- Usage: $(basename $0) SIM_DIASCA_ARCHIVE THIRD_PARTY_REPOSITORY_ROOT
+ Usage: "`basename $0`" SIM_DIASCA_ARCHIVE THIRD_PARTY_REPOSITORY_ROOT
 
  Updates an external, third-party SVN repository from the archive of a Sim-Diasca release.
 
- Example: $(basename $0) Sim-Diasca-2.0.11.tar.bz2 $HOME/Projects/Foobar"
+ Example: "`basename $0`" Sim-Diasca-2.0.11.tar.bz2 $HOME/Projects/Foobar"
 
 
 # Other example: update-third-party-repository.sh Sim-Diasca-2.0.11.tar.bz2 /home/E21850/Projects/CLEVER/Sources/clever/branches/pre-release-0.1.6
@@ -51,25 +51,25 @@ if [ ! -d "$remote_repository/wooper" ] ; then
 fi
 
 
-if [ $(echo $sim_diasca_archive | head -c 1) = "/" ] ; then
+if [ `echo $sim_diasca_archive | head -c 1` = "/" ] ; then
 
 	absolute_sim_diasca_archive="$sim_diasca_archive"
 
 else
 
-	absolute_sim_diasca_archive="$(pwd)/$sim_diasca_archive"
+	absolute_sim_diasca_archive=`pwd`"/$sim_diasca_archive"
 
 fi
 
 
 
-if [ $(echo $remote_repository | head -c 1) = "/" ] ; then
+if [ `echo $remote_repository | head -c 1` = "/" ] ; then
 
 	absolute_remote_repository="$remote_repository"
 
 else
 
-	absolute_remote_repository="$(pwd)/$remote_repository"
+	absolute_remote_repository=`pwd`"/$remote_repository"
 
 fi
 
@@ -79,7 +79,7 @@ echo
 
 # Let's prepare the archive:
 
-tmp_dir="tmp-$(basename $0)"
+tmp_dir="tmp-"`basename $0`
 
 if [ -d "$tmp_dir" ] ; then
 
@@ -91,7 +91,7 @@ fi
 
 echo " + cleaning target repository (supposedly already updated)"
 
-initial_dir=$(pwd)
+initial_dir=`pwd`
 
 cd $absolute_remote_repository
 
@@ -115,7 +115,7 @@ cd "$tmp_dir"
 
 tar xjf $absolute_sim_diasca_archive
 
-archive_root=$(basename $sim_diasca_archive| sed 's|\.tar\.bz2$||1')
+archive_root=`basename $sim_diasca_archive| sed 's|\.tar\.bz2$||1'`
 
 #echo "archive_root = $archive_root"
 
@@ -132,7 +132,7 @@ echo " + updating third-party repository"
 
 # We do not want to overwrite the root GNUmakefile:
 
-updated_packages="myriad wooper traces sim-diasca mock-simulators"
+updated_packages="common wooper traces sim-diasca mock-simulators"
 
 for p in $updated_packages ; do
 

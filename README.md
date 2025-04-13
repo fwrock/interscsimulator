@@ -1,36 +1,54 @@
-[![Erlang CI](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/actions/workflows/erlang-ci.yml/badge.svg)](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/actions/workflows/erlang-ci.yml)
-# Sim-Diasca
+# InterSCSimulator
 
-![](/sim-diasca/doc/common-elements/edf-related/sim-diasca.png)
+This repository is a fork of the [Sim-Diasca Repository](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca). Sim-Diasca is a parallel and distributed discrete-time simulation engine for complex systems. The name stands for 'Simulation of Discrete Systems of All Scales'. *This is the 2.2.11-rc4 version of Sim-Diasca*. Sim-Diasca is released under the LGPL license (GNU Lesser General Public License, version 3). Please refer to the `GPL-license.txt` and `LGPL-license.txt` files in the `sim-diasca/doc/common-elements/licence` directory.
 
+See also: http://www.gnu.org/licenses/lgpl-3.0.html
 
-## Purpose of this repository
+Official Sim-Diasca website: http://sim-diasca.com.
 
-This is the official repository of the Sim-Diasca simulation engine, which is developed and released by [EDF R&D](https://www.edf.fr/en/the-edf-group/inventing-the-future-of-energy/r-d-global-expertise).
+A good starting point to understand how the engine should be used is to look in the `mock-simulators/smart_city_model/src` directory. Please refer to the 'Sim-Diasca Technical Manual' or the 'Sim-Diasca Developer Guide' for further information.
 
-The purpose of this public repository is to complement the [official page](https://www.edf.fr/en/the-edf-group/inventing-the-future-of-energy/r-d-global-expertise/our-offers/simulation-softwares/sim-diasca) and to share with the community the code and the [documentation](http://olivier-boudeville-edf.github.io/Sim-Diasca/) of Sim-Diasca.
+We hope you enjoy using Sim-Diasca!
 
+In this repository, we add a [smart city model](https://github.com/fwrock/interscsimulator-smart-city-model) ([Main Repository](https://github.com/ezambomsantana/smart_city_model)). InterSCSimulator is based on Sim-Diasca, a general-purpose simulator implemented in Erlang.
 
-## Sim-Diasca in a nutshell
+## Running InterSCSimulator ##
+1. Clone this repository:
+  ```bash
+  git clone git@github.com:fwrock/interscsimulator.git
+  cd interscsimulator/
+  ```
 
-Sim-Diasca (*Simulation of Discrete Systems of All Scales*) is a **discrete-time simulation engine** aiming for maximum concurrency, relying on a mode of operation that is both parallel and distributed.
+2. Go to the `mock-simulators/` directory and clone the smart city model from this [repository](https://github.com/fwrock/interscsimulator-smart-city-model):
 
-The engine focuses notably on scalability, in order to handle simulation cases that may be very large (potentially involving millions of interacting instances of models), while still preserving essential simulation properties, like causality, total reproducibility and some form of ergodicity.
+```bash
+cd mock-simulators/
+git clone git@github.com:fwrock/interscsimulator-smart-city-model.git
+  ```
 
-The simulation engine is implemented in the [Erlang](http://erlang.org) programming language and its execution platform of choice is GNU/Linux.
+3. Rename `interscsimulator-smart-city-model` to `smart_city_model`:
+```bash
+rm ./smart_city_model
+mv interscsimulator-smart-city-model/ ./smart_city_model
+```
 
-Sim-Diasca has been released since 2010 by EDF R&D under the LGPL licence.
+4. Now, go to the root directory `interscsimulator/` and run the application using the Docker command.
 
-<!--
-For more information, please refer to the *Sim-Diasca Technical Manual*.
+5. Build the Docker image:
+```bash
+docker build -t interscsimulator .
+```
+6. Run the Docker container:
 
-Until the various elements are available online, please [contact us](https://www.edf.fr/en/the-edf-group/world-s-largest-power-company/activities/research-and-development/scientific-communities/simulation-softwares?logiciel=10832) for an archived copy of the last stable version and its related documentation. -->
+```bash
+docker run -t -w /src/mock-simulators/smart_city_model/src -h {YOUR_HOSTNAME} -v {YOUR_VOLUME_OUTPUT_PATH}:/src/mock-simulators/smart_city_model/output -e USER=root -e CONFIG_PATH={YOUR_SCENARIO_CONFIG_PATH} interscsimulator
+```
 
+  - Example:
+  ```bash
+docker run -t -w /src/mock-simulators/smart_city_model/src -h teste.com -v /home/my_user/interscsimulator/output/base_scenario:/src/mock-simulators/smart_city_model/output -e USER=root -e CONFIG_PATH=/src/mock-simulators/smart_city_model/base_scenario/config.xml interscsimulator
+```
 
-## Sim-Diasca documentation
+### Notes
 
-Please refer to the full [Sim-Diasca official documentation](http://olivier-boudeville-edf.github.io/Sim-Diasca/) for further information.
-
-One may also have a look at the [Sim-Diasca wiki](https://github.com/Olivier-Boudeville-EDF/Sim-Diasca/wiki).
-
-This branch corresponds to the current stable version (2.4.7) of Sim-Diasca.
+Checking the version of this source code and the source code version of the [smart city model](https://github.com/fwrock/interscsimulator-smart-city-model), make sure to select the same branch before running.

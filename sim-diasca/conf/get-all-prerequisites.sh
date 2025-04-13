@@ -4,24 +4,24 @@ all_distro_types="Debian, ArchLinux"
 
 distro_type="Debian"
 
-usage="Usage: $(basename $0) [-h|--help] [DISTRO_TYPE]: triggers the installation of all Sim-Diasca prerequisites, by default on a ${distro_type} platform. To be run as root.
+usage="Usage: "`basename $0`" [-h|--help] [DISTRO_TYPE]: triggers the installation of all Sim-Diasca prerequisites, by default on a ${distro_type} platform. To be run as root.
 If specified, DISTRO_TYPE must be in: [${all_distro_types}].
 "
 
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+if [ "$1" = "-h" -o "$1" = "--help" ] ; then
 
-	echo "${usage}"
+	echo "$usage"
 	exit
 
 fi
 
 
-if [ -n "$1" ]; then
-	distro_type="$1"
+if [ ! -z "$1" ] ; then
+	distro_type=$1
 fi
 
 
-if [ ! $(id -u) -eq 0 ]; then
+if [ !  `id -u` -eq 0 ] ; then
 
 	echo "   Error, this script must be run as root." 1>&2
 
@@ -35,12 +35,11 @@ fi
 install_debian()
 {
 
-	# Debian 10 (buster);
-	# From myriad/conf/install-erlang.sh:
+	# From common/conf/install-erlang.sh:
 	erlang_packets="g++ make libncurses5-dev openssl libssl-dev     \
-   libwxgtk2.8-dev libgl1-mesa-dev libglu1-mesa-dev libpng16-16"
+   libwxgtk2.8-dev libgl1-mesa-dev libglu1-mesa-dev libpng3"
 
-	# From sim-diasca/doc/installation-guide/public-version/Sim-Diasca-public-installation-guide-english.rst:
+	# From SimDiasca-installation-instructions-english.rst:
 	sim_diasca_packets="bzip2 coreutils build-essential g++         \
    libncurses5-dev openssl libssl-dev libwxgtk2.8-dev               \
    libgl1-mesa-dev libglu1-mesa-dev libpng3 uuidgen                 \
@@ -71,19 +70,16 @@ install_arch()
 
 	pacman -Sy ....
 
+
 }
 
 
 case "${distro_type}" in
 
-	"Debian")
-		install_debian;;
+	"Debian") install_debian ;;
 
-	"ArchLinux")
-		install_arch;;
+	"ArchLinux") install_arch ;;
 
-	*)
-		echo "  Error, unknown distribution: '${distro_type}'." 1>&2 ;
-		exit 15
+	*) echo "  Error, unknown distribution: '${distro_type}'." 1>&2 ; exit 15
 
 esac

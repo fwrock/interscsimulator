@@ -1,106 +1,141 @@
-% Copyright (C) 2008-2024 EDF R&D
+% Copyright (C) 2008-2017 EDF R&D
 %
 % This file is part of the Sim-Diasca training material.
 %
 % It has been placed in the public domain.
 %
-% Author: Olivier Boudeville [olivier (dot) boudeville (at) edf (dot) fr]
+% Author: Olivier Boudeville (olivier.boudeville@edf.fr)
 %
 -module(class_PinkFlamingo).
 
 
-% Determines what are the direct mother classes of this class (if any):
--define( superclasses, [ class_ViviparousBeing ] ).
+% Determines what are the mother classes of this class (if any):
+-define( wooper_superclasses, [class_ViviparousBeing] ).
+
+
+% Parameters taken by the constructor ('construct'):
+-define( wooper_construct_parameters, Name, Height ).
+
+
+% If using the default do-nothing destructor:
+
+% Declaring all variations of WOOPER-defined standard life-cycle operations:
+% (template pasted, just two replacements performed to update arities)
+-define( wooper_construct_export, new/2, new_link/2,
+   synchronous_new/2, synchronous_new_link/2,
+   synchronous_timed_new/2, synchronous_timed_new_link/2,
+   remote_new/3, remote_new_link/3, remote_synchronous_new/3,
+   remote_synchronous_new_link/3, remote_synchronisable_new_link/3,
+   remote_synchronous_timed_new/3, remote_synchronous_timed_new_link/3,
+   construct/3 ).
+
+
+
+
+% Member method declarations:
+-define( wooper_method_export, filterPlankton/2, getFeatherColor/1,
+		getMeanChildrenCount/1 ).
+
+
+% Static method declarations:
+-define( wooper_static_method_export, get_mean_children_count/0 ).
+
+
 
 
 % Allows to define WOOPER base variables and methods for that class:
--include_lib("wooper/include/wooper.hrl").
+-include("wooper.hrl").
 
 
 
--type name() :: ustring().
+-type name() :: string().
 
-% Expressed in centimeters:
--type heigth() :: float().
+-type height() :: float().
+
+-type location() :: 'camargue' | 'chile'.
 
 -type color() :: 'pink' | 'yellow' | 'blue'.
 
--type flamingo_pid() :: class_Actor:actor_pid().
-
--type filtering_location() :: 'camargue' | 'chile'.
 
 
-% Shorthands:
--type ustring() :: text_utils:ustring().
-
-
-% @doc Constructs a pink flamingo.
+% Constructs a new PinkFlamingo.
 %
 % Note: this is *not* a Sim-Diasca actor.
 %
 -spec construct( wooper:state(), name(), height() ) -> wooper:state().
-construct( State, Name, Height ) when is_list( Name )
-		andalso is_float( Height ) ->
+construct( State, ?wooper_construct_parameters ) when is_list(Name)
+		andalso is_float(Height) ->
 
 	% First the direct mother classes:
 	ViviparousBeingState = class_ViviparousBeing:construct( State ),
 
 	% Then the class-specific attributes:
-	setAttributes( ViviparousBeingState, [ { name, Name },
-										   { height, Height },
-										   {feather_color,pink} ] ).
+	setAttributes( ViviparousBeingState, [
+
+		{name,Name},
+		{height,Height},
+		{feather_color,pink}
+
+	] ).
 
 
 
-% @doc Requests the flamingo to filter plankton in specified location.
--spec filterPlankton( wooper:state(), filetring_location() ) -> oneway_return().
+% Requests the flamingo to filter plankton in specified location.
+%
+% (oneway)
+%
+-spec filterPlankton( wooper:state(), location() ) -> oneway_return().
 filterPlankton( State, camargue ) ->
 
 	NewHeight = ?getAttr(height) + 2.5,
 
-	trace_utils:notice( "[~ts] Gobble, gobble, my height is now ~f cm.",
-						[ ?getAttr(name), NewHeight ] ),
+	io:format( "[~s] Glouglou, gouglou, my height is now ~f cm.~n",
+		[ ?getAttr(name), NewHeight ] ),
 
-	wooper:return_state( setAttribute( State, height, NewHeight ) );
+	?wooper_return_state_only( setAttribute( State, height, NewHeight ) );
 
 
 filterPlankton( State, chile ) ->
 
 	NewHeight = ?getAttr(height) + 1,
 
-	trace_utils:notice( "[~ts] Gurgle, gurgle, my height is now ~f cm.",
-						[ ?getAttr(name), NewHeight ] ),
+	io:format( "[~s] Gobble, gobble, my height is now ~f cm.~n",
+		[ ?getAttr(name), NewHeight ] ),
 
-	wooper:return_state( setAttribute( State, height, NewHeight ) ).
+	?wooper_return_state_only( setAttribute( State, height, NewHeight ) ).
 
 
 
-% @doc Returns the feather color of the flamingo.
+% Returns the feather color of the flamingo.
 %
 % Could be a static method if we knew for sure that all flamingos were pink.
 %
--spec getFeatherColor( wooper:state() ) -> const_request_return( color() ).
+% (const request)
+%
+-spec getFeatherColor( wooper:state() ) -> request_return( color() ).
 getFeatherColor( State ) ->
-	wooper:const_return( ?getAttr(feather_color) ).
+	?wooper_return_state_result( State, ?getAttr(feather_color) ).
 
 
 
-% @doc Returns the mean children count for that flamingo (actually does not
-% depend on any specific flamingo).
+% Returns the mean children count for that flamingo (actually does not depend on
+% any specific flaming).
+%
+% (const request)
 %
 -spec getMeanChildrenCount( wooper:state() ) ->
-								const_request_return( basic_utils:count() ).
+								  request_return( basic_utils:count() ).
 getMeanChildrenCount( State ) ->
-	wooper:const_return_result( 1.7 ).
+	?wooper_return_state_result( State, 1.7 ).
 
 
 
 % Static section.
 
 
-% @doc Let's say an average means something here.
+% Let's say an average means something here:
 
 % (this is a static method, as it does not depend on a state)
 %
 get_mean_children_count() ->
-	wooper:return_static( 1.7 ).
+	1.7.

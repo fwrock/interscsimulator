@@ -1,10 +1,6 @@
 SIM_DIASCA_TOP = ../..
 
 
-.PHONY: doc html pdf toolbox-archive info-archive                \
-		clean-local info-archive clean-local
-
-
 DIAGRAM_ARCHIVE := dataflow-diagram-toolbox.zip
 
 DIAGRAMS := dataflow-city-example.dia dataflow-basic-example.graph    \
@@ -13,24 +9,20 @@ DIAGRAMS := dataflow-city-example.dia dataflow-basic-example.graph    \
 			$(SIM_DIASCA_TOP)/../mock-simulators/dataflow-urban-example/doc/urban-example-dataflow.dia
 
 
-.PHONY: doc html pdf toolbox-archive clean-local \
-		info-tool info-archive info-doc info-local-doc
+.PHONY: all toolbox-archive track info-tool info-archive clean-local
 
 
-OVERALL_DOCUMENT_SOURCE := Sim-Diasca-dataflow-howto-english.rst
+OVERALL_DOCUMENT_SOURCE = $(DATAFLOW_HOWTO)
+
+DOC_SRC := SimDiasca-dataflow-howto-english.rst
 
 
 # Default do-nothing target:
-doc:
-	@echo "  Run 'make local-doc' to generate the "\
-	"dataflow HOWTO ($(DATAFLOW_HOWTO)) documents."
+all:
+	@echo "  Run 'make full-doc' to generate the "\
+	"dataflow HOWTO ($(DATAFLOW_HOWTO))."
 	@echo "  Run 'make toolbox-archive' to generate the "\
 	"dataflow diagram archive."
-
-
-html: local-html
-
-pdf: local-pdf
 
 
 toolbox-archive: clean-local $(DIAGRAM_ARCHIVE)
@@ -44,19 +36,26 @@ $(DIAGRAM_ARCHIVE): README.txt
 
 
 README.txt:
-	@echo "This archive contains a small collection of diagrams that can be serve as templates either of the Dia editor (https://sourceforge.net/projects/dia-installer/) or of the Graphviz dot tool (http://www.graphviz.org/). Their extension is respectively '.dia' and '.graph'." > README.txt
+	@echo "This archive contains a small collection of diagrams that can be serve as inputs either of the Dia editor (https://sourceforge.net/projects/dia-installer/) or of the Graphviz dot tool (http://www.graphviz.org/). Their extension is respectively '.dia' and '.graph'." > README.txt
 	@echo "They can be used as a starting basis when devising one's dataflow (one may preferably rely on 'urban-example-dataflow.dia' for that)." >> README.txt
 
 
+
+TRACKER := $$(which track-make-automatic-source.sh)
+
+track:
+	@echo "Updating $(DATAFLOW_HOWTO) by tracking the changes of its source"
+	@$(TRACKER) $(DOC_SRC)
+
+
+
 # Root specified as we want to catch the doc in src/core as well:
+#
 DOCUTILS_TOP = $(SIM_DIASCA_TOP)
 
 
-clean-local:
-	@/bin/rm -f $(DIAGRAM_ARCHIVE) README.txt
-
-
-include $(SIM_DIASCA_TOP)/GNUmakesettings.inc
+info-tool:
+	@echo "TRACKER = $(TRACKER)"
 
 
 info-archive:
@@ -64,12 +63,9 @@ info-archive:
 	@echo "DIAGRAMS = $(DIAGRAMS)"
 
 
-info-doc: info-local-doc
 
-info-local-doc:
-	@echo "SD_DATAFLOW_HOWTO_NAME = $(SD_DATAFLOW_HOWTO_NAME)"
-	@echo "SD_DATAFLOW_HOWTO_DIR = $(SD_DATAFLOW_HOWTO_DIR)"
-	@echo "SD_DATAFLOW_HOWTO_BASE = $(SD_DATAFLOW_HOWTO_BASE)"
-	@echo "SD_DATAFLOW_HOWTO_SRC = $(SD_DATAFLOW_HOWTO_SRC)"
-	@echo "SD_DATAFLOW_HOWTO_HTML = $(SD_DATAFLOW_HOWTO_HTML)"
-	@echo "SD_DATAFLOW_HOWTO_PDF = $(SD_DATAFLOW_HOWTO_PDF)"
+clean-local:
+	@/bin/rm -f $(DIAGRAM_ARCHIVE) README.txt
+
+
+include $(SIM_DIASCA_TOP)/GNUmakesettings.inc

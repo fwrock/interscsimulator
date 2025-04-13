@@ -1,7 +1,7 @@
 MOCK_SIMULATORS_TOP = .
 
 
-.PHONY: help help-mock-simulators                                              \
+.PHONY: help help-intro help-mock-simulators                                   \
 		register-version-in-header register-mock demo                          \
 		clean-host-candidate-files generate-local-plt generate-local-plt-local
 
@@ -14,6 +14,10 @@ BASE_MAKEFILE = true
 
 
 help: help-intro help-mock-simulators
+
+
+help-intro:
+	@echo " Following main make targets are available for package $(PACKAGE_NAME):"
 
 
 help-mock-simulators:
@@ -33,14 +37,11 @@ register-mock:
 
 demo:
 	@echo "Running a demo of all mock simulators"
-	@cd soda-test/src && $(MAKE) -s demo
-	@cd ssi-test//src && $(MAKE) -s demo
-	@cd city-example/src && $(MAKE) -s demo
-	@#cd dataflow-urban-example/src && $(MAKE) -s demo
+	@cd soda-test/src && $(MAKE) demo
+	@cd ssi-test//src && $(MAKE) demo
+	@cd city-example/src && $(MAKE) demo
+	@#cd dataflow-urban-example/src && $(MAKE) demo
 
-
-stats:
-	@$(MAKE_CODE_STATS) $(MOCK_SIMULATORS_TOP)
 
 
 

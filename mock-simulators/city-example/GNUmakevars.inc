@@ -1,7 +1,0 @@
-
-
-
-INC += -I$(CITY_EXAMPLE_TOP)/include
-
-
-MOCK_SIMULATORS_TOP = $(CITY_EXAMPLE_TOP)/..

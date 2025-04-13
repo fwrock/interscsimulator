@@ -10,7 +10,7 @@ Currently only a support for 2D environments is provided - of course the user mi
 
 The spatial environment is embodied by an instance (a singleton) of ``class_TwoDimensionalEnvironment``.
 
-The support for low-level spatial computations is provided by the ``linear_2D`` module (in ``myriad/src/maths``).
+The support for low-level spatial computations is provided by the ``linear_2D`` module (in ``common/src/maths``).
 
 Distances are expressed in meters, speeds in meters per second.
 
@@ -44,5 +44,5 @@ An instance can indeed call the actor oneway defined, here in ``class_TwoDimensi
 
 This center of perception must be by convention the current location of the perceiving instance, as:
 
-- a given instance should only perceive its own neighborhood
-- the environment will take advantage of this call to update its knowledge of the location of the perceiver
+ - a given instance should only perceive its own neighborhood
+ - the environment will take advantage of this call to update its knowledge of the location of the perceiver

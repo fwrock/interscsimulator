@@ -1,54 +1,66 @@
-.PHONY: help help-intro-local help-traces                               \
-	all all-pre-hook-local all-bindings                                 \
-	prerequisites rebuild generate-all-plt                              \
-	generate-list-of-all-types link-host-candidates test-production     \
-	check-hook check-hook-local full-check plt-check                    \
-	release release-zip release-bz2 release-in-clone release-doc        \
-	prepare-release remove-release-tree clean clean-checkouts           \
-	clean-prerequisites clean-generated-files                           \
-	clean-all-results real-clean real-clean-local                       \
-	install to-archive to-archive-full vcs-archive archive              \
-	update-third-party-mirror release stats stats-full                  \
-	info-context info-versions                                          \
-	info info-files info-local-files info-paths info-build              \
+.PHONY: help help-traces                                              \
+	all all-pre-hook-local prerequisites rebuild generate-all-plt     \
+	generate-list-of-all-types link-host-candidates                   \
+	check-hook check-hook-local full-check plt-check                  \
+	release release-zip release-bz2 release-doc prepare-release       \
+	clean-release clean clean-prerequisites clean-generated-files     \
+	clean-all-results real-clean real-clean-local                     \
+	install to-archive to-archive-full vcs-archive archive            \
+	update-third-party-mirror release stats                           \
+	info info-files info-local-files info-paths info-build            \
 	info-archive info-version info-release
 
 
 # Root of the Sim-Diasca based software stack (absolute paths are preferred):
 ROOT_TOP := .
-#ROOT_TOP := "$(PWD)"
+#ROOT_TOP := $(PWD)
 
 
 # Allows to strictly build a layer before the above one (hence it is a bottom-up
 # sequential build), while each layer is internally built in parallel:
 
 # Marks this makefile as the root one (hence different rules may apply):
-ROOT_MAKEFILE := true
+ROOT_MAKEFILE = true
 
 # We are not at the base of a layer here:
-BASE_MAKEFILE := false
+BASE_MAKEFILE = false
 
 
-PREREQUISITES_DIRS = $(MYRIAD_TOP) $(WOOPER_TOP) $(TRACES_TOP)
+# As layers form a chain, we only have to specify where the one just below the
+# current one is:
+#
+#COMMON_TOP            := $(ROOT_TOP)/common
+#WOOPER_TOP            := $(ROOT_TOP)/wooper
+#TRACES_TOP            := $(ROOT_TOP)/traces
+#SIM_DIASCA_TOP        := $(ROOT_TOP)/sim-diasca
+MOCK_SIMULATORS_TOP    := $(ROOT_TOP)/mock-simulators
+SUSTAINABLE_CITIES_TOP := $(ROOT_TOP)/sustainable-cities
+
+
+
+
+PREREQUISITES_DIRS = $(COMMON_TOP) $(WOOPER_TOP) $(TRACES_TOP)
+
+
+# Directories not to be distributed in the free software releases:
+#
+NON_DISTRIBUTED_DIRS := $(SUSTAINABLE_CITIES_TOP)
 
 
 # Allow for conditional rules:
 
-#HAS_FOOBAR := $(shell if [ -d $(FOOBAR_TOP) ]; \
-#   then echo "true"; else echo "false"; fi)
+HAS_SUSTAINABLE_CITIES := $$( if [ -d $(SUSTAINABLE_CITIES_TOP) ] ; \
+	then echo "true" ; else echo "false" ; fi )
+
 
 
 # Modules which will be built iff they are available on this distribution:
-
-#ifeq ($(HAS_FOOBAR,true)
-#   OPTIONAL_MODULES_DIRS += $(FOOBAR_TOP)
-#endif
-
-
-MOCK_SIMULATORS_TOP    := $(ROOT_TOP)/mock-simulators
+#
+OPTIONAL_MODULES_DIRS := $$( for d in $(NON_DISTRIBUTED_DIRS) ; do \
+	 if [ -d $$d ] ; then echo $$d ; fi ; done )
 
 
-# 'Myriad', 'WOOPER', 'Traces' not listed anymore here, as deemed to be external
+# 'Common', 'WOOPER', 'Traces' not listed anymore here, as deemed to be external
 # prerequisites.
 # 'applications' not listed anymore here, as deemed to be only Sim-Diasca using
 # code.
@@ -83,14 +95,14 @@ PLT_TARGETS = $(PREREQUISITES_DIRS) $(SIM_DIASCA_TOP) $(MOCK_DIRS)
 
 
 # Default target:
-help: help-intro-local help-root
+help: help-intro help-root
 
 
 include $(ROOT_TOP)/GNUmakesettings.inc
 
 
 
-help-intro-local:
+help-intro:
 	@echo " Following main make targets are available from this root of the Sim-Diasca code base:"
 	@echo "  - 'rebuild':       cleans, builds and generates list of all types"
 	@echo "  - 'release':       generates a source release for the $(SIM_DIASCA_VERSION) version "
@@ -101,20 +113,32 @@ help-root:
 	@cd $(SIM_DIASCA_TOP) && $(MAKE) -s help-sim-diasca
 
 
-all-recurse-pre-hook:
+# Ensures that the package version file is, if needed, recreated first:
+#
+all-recurse-pre-hook: $(VERSION_FILE)
 
 
-# Ensures that, whether or not the bindings are enabled, they are built.
-all-bindings:
-	@$(MAKE) -s all USE_PYTHON_BINDING=true USE_JAVA_BINDING=true
+# No generic 'register-version-in-header' target can be defined, as the Erlang
+# defines may be arbitrarily defined by each layer.
+#
+# Do not use 'echo -e' here, a faulty header would be generated.
+#
+$(VERSION_FILE):
+	@echo "   Generating the header file collecting all package versions " \
+	"($$(basename $(VERSION_FILE)))"
+	@echo "% Header automatically generated by the 'all-pre-hook'"  > $(VERSION_FILE)
+	@echo "% make target." >> $(VERSION_FILE)
+	@echo "" >> $(VERSION_FILE)
+	@for m in $(MODULES_DIRS); do ( cd $$m && $(MAKE) -s \
+	register-version-in-header VERSION_FILE=$(PWD)/$(VERSION_FILE) ); done
 
 
 prerequisites:
 	@echo "   Making prerequisites: $(PREREQUISITES_DESCRIPTION)"
-	@for m in $(PREREQUISITES_DIRS); do if ! (if [ -d $$m ]; then cd $$m &&  \
-	$(MAKE) -s all && cd ..;                                                 \
-	else echo "     (non-existing directory $$m skipped)"; fi); then         \
-	exit 1; fi; done
+	@for m in $(PREREQUISITES_DIRS); do if ! ( if [ -d $$m ] ; then cd $$m && \
+	$(MAKE) -s all && cd .. ;                                                 \
+	else echo "     (non-existing directory $$m skipped)" ; fi ) ; then       \
+	exit 1; fi ; done
 
 
 rebuild: clean all generate-list-of-all-types
@@ -122,14 +146,14 @@ rebuild: clean all generate-list-of-all-types
 
 generate-all-plt: all
 	@echo "   Generating now PLTs for the full Sim-Diasca based stack:"
-	@for m in $(PLT_TARGETS); do \
-	(cd $$m && $(MAKE) -s generate-local-plt || exit 5); done
+	@for m in $(PLT_TARGETS) ; do \
+	( cd $$m ; $(MAKE) -s generate-local-plt ) ; done
 
 
 generate-list-of-all-types:
 	@echo "   Listing now all types defined in the full Sim-Diasca based stack:"
-	@for m in $(PLT_TARGETS); do \
-	(cd $$m && $(MAKE) -s generate-list-of-local-types || exit 6); done
+	@for m in $(PLT_TARGETS) ; do \
+	( cd $$m ; $(MAKE) -s generate-list-of-local-types ) ; done
 
 
 # Creates all relevant links in the source tree to the central, single, host
@@ -138,21 +162,9 @@ generate-list-of-all-types:
 link-host-candidates:
 	@echo "   Creating symbolic links to $(SIM_DIASCA_HOST_FILE) \
 	in the full source tree"
-	@for f in $(SIM_DIASCA_TOP) $(MOCK_SIMULATORS_TOP); do \
-	(cd $$f && $(MAKE) -s make-config-links-recurse || exit 7); done
+	@for f in $(SIM_DIASCA_TOP) $(MOCK_SIMULATORS_TOP) ; do \
+	( cd $$f && $(MAKE) -s make-config-links-recurse ) ; done
 
-
-
-# The WOOPER Platypus test is hidden, as its test of deletion time-out would
-# last, in production mode, for 30 minutes:
-#
-test-production:
-	@echo "   Rebuilding and testing all in the 'production' execution target"
-	@$(MAKE) -s clean
-	-@/bin/mv -f wooper/priv/examples/class_Platypus_test.erl wooper/priv/examples/class_Platypus_test.erl-hidden
-	@$(MAKE) -s all EXECUTION_TARGET=production
-	@$(MAKE) -s test
-	@/bin/mv -f wooper/priv/examples/class_Platypus_test.erl-hidden wooper/priv/examples/class_Platypus_test.erl
 
 
 check-hook: check-hook-local
@@ -164,32 +176,35 @@ check-hook-local:
 
 
 # 'check' would not suffice as we want to rebuild also prerequisites:
-full-check: #rebuild
+full-check: rebuild
 	@echo "   Performing now a full check (tests + static analyses) of \
 	the Sim-Diasca based stack:"
-	@for m in $(PLT_TARGETS); do cd $(ROOT_TOP)/$$m && $(MAKE) -s test generate-local-plt self-check-against-plt; done
+	@for m in $(PLT_TARGETS); do \
+	( cd $$m ; $(MAKE) -s test generate-local-plt self-check-against-plt ) ; \
+	done
 
 
 plt-check: all
 	@echo "   Performing now a static analysis for each layer of \
 	the Sim-Diasca based stack (with no forced rebuild):"
-	@for m in $(PLT_TARGETS); do cd $(ROOT_TOP)/$$m && $(MAKE) -s generate-local-plt self-check-against-plt; done
+	@for m in $(PLT_TARGETS); do \
+	( cd $$m ; $(MAKE) -s generate-local-plt self-check-against-plt ) ; \
+	done
 
 
 doc:
-	@for m in $(SIM_DIASCA_TOP) $(MOCK_DIRS); do cd $(ROOT_TOP)/$$m && $(MAKE) -s doc; done
-
+	@for m in $(SIM_DIASCA_TOP) $(MOCK_DIRS); do \
+	( cd $$m ; $(MAKE) -s doc ) ; done
 
 
 # Release section.
 
 
-# Not release-xz, as not popular enough among potential users:
-release: release-zip release-bz2 release-doc
-	@$(MAKE) -s remove-release-tree # Final cleanup
+release: release-zip release-bz2 #release-doc
+	@$(MAKE) clean-release
 
 
-release-zip: prepare-file-release
+release-zip: prepare-release
 	@echo "     Creating Sim-Diasca release archive \
 	$(SIM_DIASCA_RELEASE_ARCHIVE_ZIP)"
 	@cd .. && zip -r $(SIM_DIASCA_RELEASE_ARCHIVE_ZIP) \
@@ -197,119 +212,70 @@ release-zip: prepare-file-release
 	&& echo "     Archive $(SIM_DIASCA_RELEASE_ARCHIVE_ZIP) ready in $$(pwd)"
 
 
-# No more 'h' option to avoid duplicating the content of symlinks:
-release-xz: prepare-file-release
-	@echo "     Creating Sim-Diasca release archive \
-	$(SIM_DIASCA_RELEASE_ARCHIVE_XZ)"
-	@cd .. && tar cvJf $(SIM_DIASCA_RELEASE_ARCHIVE_XZ) \
-	$(SIM_DIASCA_RELEASE_BASENAME) \
-	&& echo "     Archive $(SIM_DIASCA_RELEASE_ARCHIVE_XZ) ready in $$(pwd)"
-
-
-# No more 'h' option to avoid duplicating the content of symlinks:
-release-bz2: prepare-file-release
+release-bz2: prepare-release
 	@echo "     Creating Sim-Diasca release archive \
 	$(SIM_DIASCA_RELEASE_ARCHIVE_BZ2)"
-	@cd .. && tar cvjf $(SIM_DIASCA_RELEASE_ARCHIVE_BZ2) \
+	@cd .. && tar chvjf $(SIM_DIASCA_RELEASE_ARCHIVE_BZ2) \
 	$(SIM_DIASCA_RELEASE_BASENAME) \
 	&& echo "     Archive $(SIM_DIASCA_RELEASE_ARCHIVE_BZ2) ready in $$(pwd)"
 
 
-
-# SIM_DIASCA_PUBLIC_CLONE_ROOT to be set in one's environment.
-#
-# Not using 'git checkout --orphan' as we want to keep the ancestry link with
-# the master ('main') branch.
-#
-# Note that if multiple attempts of releases are made, the corresponding branch
-# might already exist.
-#
-# For such a clone, we prefer to start from scratch.
-#
-# See also our internal 'prepare-new-sim-diasca-public-version.sh' script.
-#
-release-in-clone:
-	@if [ -z "$(SIM_DIASCA_PUBLIC_CLONE_ROOT)" ]; then echo "Error, the SIM_DIASCA_PUBLIC_CLONE_ROOT environment variable is not set." 1>&2; exit 55; fi
-	@if [ ! -d "$(SIM_DIASCA_PUBLIC_CLONE_ROOT)" ]; then echo "Error, the SIM_DIASCA_PUBLIC_CLONE_ROOT=$(SIM_DIASCA_PUBLIC_CLONE_ROOT) directory does not exist." 1>&2; exit 56; fi
-	@if [ ! -d "$(SIM_DIASCA_PUBLIC_CLONE_ROOT)/.git" ]; then echo "Error, the SIM_DIASCA_PUBLIC_CLONE_ROOT=$(SIM_DIASCA_PUBLIC_CLONE_ROOT) directory is not a GIT clone." 1>&2; exit 57; fi
-	@echo "     Releasing Sim-Diasca public version in the 'sim-diasca-$(SIM_DIASCA_BASE_VERSION)' branch in clone '$(SIM_DIASCA_PUBLIC_CLONE_ROOT)'"
-	@cd $(SIM_DIASCA_PUBLIC_CLONE_ROOT) && ( (git checkout -b sim-diasca-$(SIM_DIASCA_BASE_VERSION) 2>/dev/null || true); (git rm -rf * 2>/dev/null || true); /bin/rm -rf $(SIM_DIASCA_PUBLIC_CLONE_ROOT)/*)
-	@cd $(SIM_DIASCA_PUBLIC_CLONE_ROOT) && (git reset HEAD README.md LICENSE; git checkout README.md LICENSE; echo "\nThis branch corresponds to the version *$(SIM_DIASCA_VERSION)* of Sim-Diasca." >> README.md)
-	@/bin/rm -f $(SIM_DIASCA_PUBLIC_CLONE_ROOT)/sim-diasca/doc/installation-guide/internal-version/*.rst
-	@$(MAKE) -s prepare-release SIM_DIASCA_RELEASE_BASE=$(SIM_DIASCA_PUBLIC_CLONE_ROOT) && cd $(SIM_DIASCA_PUBLIC_CLONE_ROOT) && git add .
-	@echo "After a check, you can run, from $(SIM_DIASCA_PUBLIC_CLONE_ROOT): git ci -m \"Sharing the public version $(SIM_DIASCA_VERSION) of Sim-Diasca.\""
-
 release-doc:
-	@cd $(SIM_DIASCA_TOP)/doc && $(MAKE) -s doc-package
+	@cd $(SIM_DIASCA_TOP)/doc && $(MAKE) doc-package
 
-
-
-# Also possible:
-#   @for p in $(PREREQUISITES_DIRS); do (cd $$p/doc && $(MAKE) -s full-doc VIEW_PDF=no); done
 
 
 HOST_SAMPLE_PATH := sim-diasca/conf
 HOST_SAMPLE_FILE := $(HOST_SAMPLE_PATH)/sim-diasca-host-candidates-sample.txt
 
 
-# Pre-cleanup and base preparation:
-prepare-file-release: remove-release-tree clean-file-release prepare-release
-
-
-clean-file-release:
-	@echo "  Cleaning file release in '$(SIM_DIASCA_RELEASE_BASE)'"
-	-@cd .. && /bin/rm -f $(SIM_DIASCA_RELEASE_ARCHIVE_ZIP) \
-	$(SIM_DIASCA_RELEASE_ARCHIVE_BZ2) $(SIM_DIASCA_RELEASE_ARCHIVE_XZ)
-	-@find $(SIM_DIASCA_RELEASE_BASE) -type d -a \( -name '.git' -o -name 'tmp-rst' \) -exec /bin/rm -rf '{}' ';' 2>/dev/null || true
-	@/bin/rm -rf $(SIM_DIASCA_RELEASE_BASE)/sim-diasca/doc/installation-guide/internal-version
-
 
 # The '-L' option with cp is used so that symbolic links are replaced by their
 # actual target file, otherwise tar would include dead links in releases.
 #
-prepare-release: real-clean
-	@echo "     Preparing release for Sim-Diasca $(SIM_DIASCA_VERSION) in $(SIM_DIASCA_RELEASE_BASE)"
+prepare-release: real-clean clean-release
+	@echo "     Preparing release archive for Sim-Diasca $(SIM_DIASCA_VERSION)"
+	-@cd .. && /bin/rm -f $(SIM_DIASCA_RELEASE_ARCHIVE_ZIP) \
+	$(SIM_DIASCA_RELEASE_ARCHIVE_BZ2)
 	@mkdir -p $(SIM_DIASCA_RELEASE_BASE) && \
 	/bin/cp -L -r $(SIM_DIASCA_PACKAGE_ELEMENTS) $(SIM_DIASCA_RELEASE_BASE)
 	@/bin/rm -rf $(SIM_DIASCA_RELEASE_BASE)/sim-diasca/src/core/src/dataflow/bindings/python/src/sim-diasca-dataflow-env
-	-@cd $(SIM_DIASCA_RELEASE_BASE) && /bin/rm -rf */_checkouts && /bin/rm -rf */_build
-	-@find $(SIM_DIASCA_RELEASE_BASE) -type f -a              \
+	-@cd .. && find $(SIM_DIASCA_RELEASE_BASENAME) -type d -a -name '.git' \
+	-exec /bin/rm -rf '{}' ';' 2>/dev/null || true
+	-@cd ../$(SIM_DIASCA_RELEASE_BASENAME) && /bin/rm -f .gitignore
+	-@cd .. && find $(SIM_DIASCA_RELEASE_BASENAME) -type f -a              \
 	\( -name '*.beam' -o -name 'sim-diasca-host-candidates*.txt'           \
-	-o -name '*.png' -o -name 'erl_crash.dump' -o -name '*.dia~' -o -name '*.log' -o -name '*.aux' -o -name '*.toc' -o -name '*.tex' -o -name rebar.lock \) -exec /bin/rm -f '{}' ';' 2>/dev/null || true
-	@/bin/cp -f $(HOST_SAMPLE_FILE) $(SIM_DIASCA_RELEASE_BASE)/$(HOST_SAMPLE_PATH)
-	@cat sim-diasca/README.txt.template | sed -s "s|SIM_DIASCA_VERSION|$(SIM_DIASCA_VERSION)|g" > $(SIM_DIASCA_RELEASE_BASE)/README.txt
-	@echo "Release generated in $$(realpath $(SIM_DIASCA_RELEASE_BASE))."
+	-o -name '*.png' -o -name 'erl_crash.dump' -o -name '*.dia~' \) -exec /bin/rm -f '{}' ';' 2>/dev/null || true
+	-@/bin/cp -f $(HOST_SAMPLE_FILE) \
+	../$(SIM_DIASCA_RELEASE_BASENAME)/$(HOST_SAMPLE_PATH)
+	-@cat sim-diasca/README.txt.template | sed -s "s|SIM_DIASCA_VERSION|$(SIM_DIASCA_VERSION)|g" > $(SIM_DIASCA_RELEASE_BASE)/README.txt
 
 
-remove-release-tree:
-	@echo "     Removing any past release archive tree"
+
+clean-release:
+	@echo "     Cleaning any past release archive"
 	-@cd .. && /bin/rm -rf $(SIM_DIASCA_RELEASE_BASENAME)
 
 
-clean: clean-checkouts clean-prerequisites clean-generated-files clean-all-results
-
-
-clean-checkouts:
-	@echo "   Cleaning all _checkouts"
-	@/bin/rm -rf */_checkouts
+clean: clean-generated-files clean-all-results
 
 
 clean-prerequisites:
 	@echo "   Cleaning all prerequisites first"
-	@for m in $(PREREQUISITES_DIRS); do if ! (if [ -d $$m ]; then cd $$m && \
-	echo "   Cleaning prerequisite '$$(basename $$m)'";                     \
-	$(MAKE) -s clean && cd ..;                                              \
-	else echo "     (non-existing directory $$m skipped)"; fi);             \
-	then exit 1; fi; done
+	@for m in $(PREREQUISITES_DIRS); do if ! ( if [ -d $$m ] ; then cd $$m && \
+	echo "   Cleaning prerequisite '$$(basename $$m)'" ;                       \
+	$(MAKE) -s clean && cd .. ;                                               \
+	else echo "     (non-existing directory $$m skipped)" ; fi ) ;            \
+	then exit 1; fi ; done
 
 
 clean-generated-files:
 	@echo "   Cleaning all (non-BEAM) generated files"
-	-@for top in $(PLT_TARGETS); do \
-	/bin/rm -f $$top/*.plt $$top/declared-types-in-*.txt; done
-	-@cd sim-diasca/doc; /bin/rm -f Sim-Diasca-*-doc.tar.bz2 \
+	-@for top in $(PLT_TARGETS) ; do \
+	/bin/rm -f $$top/*.plt $$top/declared-types-in-*.txt ; done
+	-@cd sim-diasca/doc ; /bin/rm -f Sim-Diasca-*-doc.tar.bz2 \
 	Sim-Diasca-*-doc.zip
-	-@/bin/rm -f "$(VERSION_FILE)"
+	-@/bin/rm -f $(VERSION_FILE)
 	-@find $(ROOT_TOP) -type d -a -name 'tmp-rst' -exec /bin/rm -rf '{}' ';' \
 	 2>/dev/null || true
 
@@ -320,7 +286,7 @@ clean-all-results:
 		-exec /bin/rm -rf '{}' 2>/dev/null ';' || true
 
 
-real-clean: remove-trace-files-in-tree real-clean-local
+real-clean: real-clean-local
 
 
 real-clean-local:
@@ -334,18 +300,11 @@ real-clean-local:
 #
 install:
 	@echo "   Installing all in $(INSTALLATION_PREFIX), from $$(basename $(PWD))"
-	@for m in $(INSTALLED_DIRS); do if ! (if [ -d $$m ]; then cd $$m && \
+	@for m in $(INSTALLED_DIRS); do if ! ( if [ -d $$m ] ; then cd $$m && \
 	$(MAKE) -s install-package INSTALLATION_PREFIX="$(INSTALLATION_PREFIX)" &&  \
-	cd ..; else echo "     (directory $$m skipped)"; fi);           \
-	then exit 1; fi; done && \
+	cd .. ; else echo "     (directory $$m skipped)" ; fi ) ;           \
+	then exit 1; fi ; done && \
 	echo " The full Sim-Diasca code base has been successfully installed in '$(INSTALLATION_PREFIX)'."
-
-
-
-# Sends full content to the server:
-to-archive: archive
-	@echo "    Transferring full archive $(ARCHIVE_FILE) to $(ARCHIVE_SERVER)"
-	@scp $(ARCHIVE_FILE) $(ARCHIVE_LOCATION)
 
 
 # Includes all the first-level prerequisites, only with the files in VCS:
@@ -354,48 +313,38 @@ to-vcs-archive: vcs-archive
 	@scp $(VCS_ARCHIVE_FILE) $(ARCHIVE_LOCATION)
 
 
-# Brutal archive of the current branch, including all untracked files and VCS
-# state. Mmanages symbolic links, but not dead ones.
-#
-# (tar: no more 'v' for verbose, so that any error can be spotted; 'h' was used
-# to create a non-empty archive from a root directory that was actually a
-# symlink, yet it resulted also in internal symlinks to be replaced with copies
-# of files, which is not wanted)
-#
-archive: clean
-	@echo "    Creating an archive of the Sim-Diasca-specific repository \
-	(including all files and directories in their current state, \
-	and VCS information)"
-	@mkdir -p $(ARCHIVE_ROOT); SRC_DIR=$$(basename $(realpath .)); \
-	cd $(realpath ..) && tar cJf $(ARCHIVE_FILE) $$SRC_DIR
-	@echo && echo "Sim-Diasca full archive stored in $(ARCHIVE_FILE)"
+# Sends full content to the server:
+to-archive: archive
+	@echo "    Transferring full archive $(ARCHIVE_FILE) to $(ARCHIVE_SERVER)"
+	@scp $(ARCHIVE_FILE) $(ARCHIVE_LOCATION)
 
 
 
 # Notes:
 #
-# - here the non-staged files are *not* archived (use 'make archive' for that)
+# - unlike the former bz2 target with SVN, here the non-staged files are *not*
+# archived (use 'make archive' for that)
 #
 # - 'git bundle' is already sufficiently compressed (no need for a *.bz2 or a
 # *.xz)
 #
 vcs-archive: clean
-	@echo "    Creating a VCS archive (bundle) of the full Sim-Diasca repository"
+	@echo "    Making a VCS archive (bundle) of the full Sim-Diasca repository"
 	@echo "(to retrieve that archive content, use 'git clone $(VCS_ARCHIVE_FILE)' and then 'git remote set-url origin <authoritative URL>'); note that uncommitted changes and files in the working tree will NOT be included in that archive (use 'make archive' for that)"
 	@git bundle create $(VCS_ARCHIVE_FILE) --all \
 	&& echo "Full Sim-Diasca VCS archive stored in $(VCS_ARCHIVE_FILE)"
 
 
-# Archive the bleeding edge of sources with no VCS state (hence just the tip of
-# the current branch, for a smaller size):
-#
-light-archive: clean
-	@echo "    Creating a light archive of the Sim-Diasca-specific repository \
+
+# Brutal archive of the current branch, including all untracked files:
+archive: clean
+	@echo "    Making an archive of the Sim-Diasca-specific repository \
 	(including all files and directories in their current state, \
-	but no VCS information)"
-	@mkdir -p $(ARCHIVE_ROOT); SRC_DIR=$$(basename $(realpath .)); \
-	cd $(realpath ..) && tar cJ --exclude-vcs -f $(ARCHIVE_FILE) $$SRC_DIR
-	@echo && echo "Sim-Diasca light archive stored in $(ARCHIVE_FILE)"
+	and VCS information)"
+	@mkdir -p $(ARCHIVE_ROOT) ; SRC_DIR=$(basename $(PWD)) ; \
+	cd $(ROOT_TOP)/.. && tar cvJf $(ARCHIVE_FILE) $$SRC_DIR
+	@echo && echo "Sim-Diasca full archive stored in $(ARCHIVE_FILE)"
+
 
 
 
@@ -412,26 +361,7 @@ update-third-party-mirror:
 
 
 stats:
-	@echo "Statistics for the full Sim-Diasca distribution:"
-	@$(MAKE_CODE_STATS) $(ROOT_TOP)
-
-
-stats-full: stats
-	@echo "Statistics of each Sim-Diasca layer:"
-	@$(MAKE_CODE_STATS) $(TRACES_TOP)
-	@$(MAKE_CODE_STATS) $(WOOPER_TOP)
-	@$(MAKE_CODE_STATS) $(MYRIAD_TOP)
-
-
-
-# Typically useful to know the software context for continuous integration:
-info-context: info-platform info-versions
-
-
-info-versions:
-	@echo "MYRIAD_VERSION = $(MYRIAD_VERSION)"
-	@echo "WOOPER_VERSION = $(WOOPER_VERSION)"
-	@echo "TRACES_VERSION = $(TRACES_VERSION)"
+	@$(MAKE_CODE_STATS) $(PWD)
 
 
 info: info-files info-paths info-archive info-release
@@ -444,27 +374,22 @@ info-local-files:
 	@echo "VERSION_FILE = $(VERSION_FILE)"
 
 
-info-paths: info-paths-local
-
-info-paths-local:
+info-paths:
 	@echo "ROOT_TOP               = $(ROOT_TOP)"
-	@echo "MYRIAD_TOP             = $(MYRIAD_TOP)"
+	@echo "COMMON_TOP             = $(COMMON_TOP)"
 	@echo "WOOPER_TOP             = $(WOOPER_TOP)"
 	@echo "TRACES_TOP             = $(TRACES_TOP)"
 	@echo "SIM_DIASCA_TOP         = $(SIM_DIASCA_TOP)"
 	@echo "MOCK_SIMULATORS_TOP    = $(MOCK_SIMULATORS_TOP)"
-	@#echo "FOOBAR_TOP            = $(FOOBAR_TOP)"
+	@echo "SUSTAINABLE_CITIES_TOP = $(SUSTAINABLE_CITIES_TOP)"
 	@echo "PLT_TARGETS            = $(PLT_TARGETS)"
 
 
 info-build:
 	@echo "MODULES_DIRS = $(MODULES_DIRS)"
-	@echo "OPTIONAL_MODULES_DIRS = $(OPTIONAL_MODULES_DIRS)"
-	@#echo "HAS_FOOBAR = $(HAS_FOOBAR)"
+	@echo "HAS_SUSTAINABLE_CITIES = $(HAS_SUSTAINABLE_CITIES)"
 	@echo "USE_HDF5 = $(USE_HDF5)"
 	@echo "USE_REST = $(USE_REST)"
-	@echo "USE_PYTHON_BINDING = $(USE_PYTHON_BINDING)"
-	@echo "USE_JAVA_BINDING = $(USE_JAVA_BINDING)"
 
 
 info-archive:
