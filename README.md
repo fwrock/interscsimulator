@@ -36,6 +36,7 @@ mv interscsimulator-smart-city-model/ ./smart_city_model
 
 5. Build the Docker image:
 ```bash
+cd ..
 docker build -t interscsimulator .
 ```
 6. Run the Docker container:
