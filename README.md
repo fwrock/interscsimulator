@@ -32,11 +32,13 @@ rm -r ./smart_city_model
 mv interscsimulator-smart-city-model/ ./smart_city_model
 ```
 
-4. Now, go to the root directory `interscsimulator/` and run the application using the Docker command.
+4. Now, go to the root directory `interscsimulator/` and run the application using the Docker command:
+```bash
+cd ..
+```
 
 5. Build the Docker image:
 ```bash
-cd ..
 docker build -t interscsimulator .
 ```
 6. Run the Docker container:
